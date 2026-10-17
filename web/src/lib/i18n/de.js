@@ -44,8 +44,6 @@ export default {
 	'schedule.needsPeople': 'Nur Termine, die Leute brauchen',
 	'schedule.empty': 'Keine Termine in diesem Zeitraum.',
 	'schedule.nobody': 'Noch niemand eingetragen',
-	'answer.yes': 'Ich komme',
-	'answer.no': 'Ich komme nicht',
 	'staffing.closed': 'Geschlossen',
 	'staffing.nokey': 'Kein Schlüssel',
 	'staffing.empty': 'Niemand',

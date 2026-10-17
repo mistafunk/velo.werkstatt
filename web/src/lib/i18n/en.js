@@ -45,8 +45,6 @@ export default {
 	'schedule.needsPeople': 'Only sessions that need people',
 	'schedule.empty': 'No sessions in this period.',
 	'schedule.nobody': 'Nobody signed up yet',
-	'answer.yes': "I'm coming",
-	'answer.no': "I'm not coming",
 	'staffing.closed': 'Closed',
 	'staffing.nokey': 'No key',
 	'staffing.empty': 'Nobody',
