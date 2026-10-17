@@ -54,7 +54,10 @@
 						<button class="icon destructive" aria-label={t('volunteers.delete')} title={t('volunteers.delete')} onclick={() => remove(v)}>✕</button>
 					{/if}
 				{:else}
-					<strong>{v.name}</strong>
+					<span>
+						<strong>{v.name}</strong>
+						{#if v.has_key}<span class="badge">🔑 {t('volunteers.key')}</span>{/if}
+					</span>
 				{/if}
 			</div>
 			{#if v.phone}<div class="muted"><a href="tel:{v.phone}">{v.phone}</a></div>{/if}
