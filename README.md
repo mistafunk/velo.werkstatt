@@ -103,3 +103,9 @@ One small VPS at a Swiss provider (e.g. Infomaniak), about CHF 5–10 per month.
 
 Updates: copy the new files and `systemctl restart velo-werkstatt`;
 migrations run automatically on start.
+
+## Licence
+
+[GNU Affero General Public License v3.0](LICENSE). The code is meant to be
+public (on Codeberg), so it must never contain personal data: volunteer and
+visitor data only live in the app's database.
