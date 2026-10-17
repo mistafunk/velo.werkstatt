@@ -28,6 +28,7 @@ Rules the app enforces:
 - Volunteers can only change their own answers, name, phone, language and key flag.
 - Only admins (`is_admin`) can add people, make admins, deactivate people and add, move or remove sessions. Everybody sets their own "has key" flag (admins can set it for anyone).
 - Sessions are created automatically every night for the next 12 weeks from the opening hours.
+- The Termine list shows the next 2 weeks, then past sessions with their number of visitors and material revenue (from the visits recorded in the app, or from the imported sheet totals for older sessions).
 
 ## Development
 
