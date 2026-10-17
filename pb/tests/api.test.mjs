@@ -189,3 +189,26 @@ test("volunteers record visits, the recorder is set by the server", async () => 
   assert.equal(kept.status, 200);
   assert.equal(kept.body.recorded_by, "");
 });
+
+test("volunteers upload their own avatar, raster images only", async () => {
+  const dora = await createVolunteer("avatar-a");
+  const erik = await createVolunteer("avatar-b");
+  // A 1x1 PNG.
+  const png = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=", "base64");
+  const upload = async (target, token, blob, filename) => {
+    const form = new FormData();
+    form.append("avatar", blob, filename);
+    const res = await fetch(`${BASE}/api/collections/users/records/${target}`, { method: "PATCH", headers: { Authorization: token }, body: form });
+    return { status: res.status, body: await res.json() };
+  };
+  const own = await upload(dora.id, dora.token, new Blob([png], { type: "image/png" }), "me.png");
+  assert.equal(own.status, 200, JSON.stringify(own.body));
+  assert.match(own.body.avatar, /\.png$/);
+  const other = await upload(erik.id, dora.token, new Blob([png], { type: "image/png" }), "x.png");
+  assert.equal(other.status, 404);
+  const svg = await upload(dora.id, dora.token, new Blob(['<svg xmlns="http://www.w3.org/2000/svg"/>'], { type: "image/svg+xml" }), "x.svg");
+  assert.equal(svg.status, 400);
+  const removed = await api("PATCH", `/api/collections/users/records/${dora.id}`, dora.token, { avatar: null });
+  assert.equal(removed.status, 200);
+  assert.equal(removed.body.avatar, "");
+});

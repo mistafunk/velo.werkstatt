@@ -44,6 +44,7 @@ header { display: flex; justify-content: space-between; align-items: center; pad
 .icons { display: flex; gap: 4px; }
 .hdr-icon { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; padding: 0; border: none; border-radius: 22px; background: none; color: var(--muted); }
 .hdr-icon.current { color: var(--accent); }
+.hdr-icon.current .avatar { box-shadow: 0 0 0 2px var(--accent); }
 .hdr-icon svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 nav { display: flex; gap: 16px; flex-wrap: wrap; padding-top: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
 nav a { color: var(--muted); text-decoration: none; }
@@ -62,7 +63,7 @@ button { cursor: pointer; background: var(--action); border-color: var(--action)
 button.destructive { background: var(--red); border-color: var(--red); }
 button:disabled { opacity: 0.6; cursor: default; }
 /* A link that starts an action looks like an action button. */
-a.button { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 12px; border-radius: 8px; background: var(--action); color: white; font-weight: 600; text-decoration: none; }
+a.button, label.button { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 12px; border-radius: 8px; background: var(--action); color: white; font-weight: 600; text-decoration: none; }
 .segmented button, button.toggle, button.me { background: var(--surface); border-color: var(--border); color: inherit; font-weight: 400; }
 button.link { border: none; background: none; padding: 0; min-height: 0; color: var(--muted); font-weight: 400; }
 label { display: block; margin: 12px 0 4px; font-weight: 600; }

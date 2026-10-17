@@ -4,6 +4,7 @@
 	import { resolve } from '$app/paths';
 	import { pb, auth } from '#lib/pb.svelte.js';
 	import { t, setLang } from '#lib/i18n/index.svelte.js';
+	import Avatar from '#lib/Avatar.svelte';
 
 	const isNew = $derived(page.params.id === 'new');
 	const isAdmin = $derived(!!auth.user?.is_admin);
@@ -13,11 +14,14 @@
 	let form = $state({ name: '', email: '', phone: '', lang: 'de', has_key: false, is_admin: false, active: true });
 	let error = $state('');
 	let message = $state('');
+	/** The stored record, for the avatar. @type {{ id: string, collectionId: string, name: string, avatar: string } | null} */
+	let record = $state(null);
 
 	$effect(() => {
 		const id = page.params.id ?? '';
 		message = '';
 		error = '';
+		record = null;
 		if (id === 'new') {
 			form = { name: '', email: '', phone: '', lang: 'de', has_key: false, is_admin: false, active: true };
 			return;
@@ -25,6 +29,7 @@
 		pb.collection('users')
 			.getOne(id)
 			.then((v) => {
+				record = { id: v.id, collectionId: v.collectionId, name: v.name, avatar: v.avatar };
 				form = {
 					name: v.name, email: v.email, phone: v.phone, lang: v.lang || 'de',
 					has_key: v.has_key, is_admin: v.is_admin, active: v.active
@@ -32,6 +37,21 @@
 			})
 			.catch((err) => (error = t('common.error', { message: err.message })));
 	});
+
+	/** @param {File | null} file the new picture, or null to remove it */
+	async function setAvatar(file) {
+		if (!record) return;
+		error = '';
+		message = '';
+		try {
+			const v = await pb.collection('users').update(record.id, { avatar: file });
+			record.avatar = v.avatar;
+			if (isSelf) await pb.collection('users').authRefresh();
+		} catch (err) {
+			const e = /** @type {any} */ (err);
+			error = t('common.error', { message: e.response?.data?.avatar?.message ?? e.message });
+		}
+	}
 
 	/** @param {SubmitEvent} e */
 	async function save(e) {
@@ -67,6 +87,22 @@
 {#if error}<p class="error">{error}</p>{/if}
 
 <form class="card" onsubmit={save} style="max-width: 520px">
+	{#if record}
+		<div class="avatar-row">
+			<Avatar v={record} size={72} />
+			{#if canEdit}
+				<div class="avatar-actions">
+					<label class="button upload">
+						{t('volunteer.avatarUpload')}
+						<input type="file" accept="image/jpeg,image/png,image/webp"
+							onchange={(e) => { const f = e.currentTarget.files?.[0]; if (f) setAvatar(f); e.currentTarget.value = ''; }} />
+					</label>
+					{#if record.avatar}<button type="button" class="destructive" onclick={() => setAvatar(null)}>{t('volunteer.avatarRemove')}</button>{/if}
+					<span class="muted hint">{t('volunteer.avatarHint')}</span>
+				</div>
+			{/if}
+		</div>
+	{/if}
 	<label for="name">{t('volunteer.name')}</label>
 	<input id="name" required bind:value={form.name} disabled={!canEdit} />
 
@@ -91,3 +127,11 @@
 	{#if canEdit}<p><button>{t('volunteer.save')}</button></p>{/if}
 	{#if message}<p class="ok">{message}</p>{/if}
 </form>
+
+<style>
+	.avatar-row { display: flex; align-items: center; gap: 16px; margin-bottom: 4px; }
+	.avatar-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+	.upload { margin: 0; cursor: pointer; }
+	.upload input { display: none; }
+	.hint { flex-basis: 100%; font-size: 0.8rem; }
+</style>

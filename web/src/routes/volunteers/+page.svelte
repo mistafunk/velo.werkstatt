@@ -3,6 +3,7 @@
 	import { onMount } from 'svelte';
 	import { pb, auth } from '#lib/pb.svelte.js';
 	import { t } from '#lib/i18n/index.svelte.js';
+	import Avatar from '#lib/Avatar.svelte';
 
 	/** @type {import('#lib/pb.svelte.js').Volunteer[]} */
 	let volunteers = $state([]);
@@ -44,7 +45,8 @@
 		<li class="card" class:inactive={!v.active}>
 			<div class="top">
 				{#if isAdmin}
-					<span>
+					<span class="who">
+						<Avatar {v} />
 						<a href={resolve('/volunteers/[id]', { id: v.id })}>{v.name || v.email}</a>
 						{#if v.has_key}<span class="badge">🔑 {t('volunteers.key')}</span>{/if}
 						{#if v.is_admin}<span class="badge">{t('volunteers.admin')}</span>{/if}
@@ -54,15 +56,16 @@
 						<button class="icon destructive" aria-label={t('volunteers.delete')} title={t('volunteers.delete')} onclick={() => remove(v)}>✕</button>
 					{/if}
 				{:else}
-					<span>
+					<span class="who">
+						<Avatar {v} />
 						<strong>{v.name}</strong>
 						{#if v.has_key}<span class="badge">🔑 {t('volunteers.key')}</span>{/if}
 						{#if v.is_admin}<span class="badge">{t('volunteers.admin')}</span>{/if}
 					</span>
 				{/if}
 			</div>
-			{#if v.phone}<div class="muted"><a href="tel:{v.phone}">{v.phone}</a></div>{/if}
-			{#if realEmail(v.email)}<div class="muted"><a href="mailto:{v.email}">{v.email}</a></div>{/if}
+			{#if v.phone}<div class="muted contact"><a href="tel:{v.phone}">{v.phone}</a></div>{/if}
+			{#if realEmail(v.email)}<div class="muted contact"><a href="mailto:{v.email}">{v.email}</a></div>{/if}
 		</li>
 	{/each}
 </ul>
@@ -71,6 +74,7 @@
 	ul { list-style: none; padding: 0; display: grid; gap: 8px; }
 	.top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 	.inactive { opacity: 0.6; }
-	.badge { margin-left: 6px; }
+	.who { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+	.contact { margin-left: 40px; }
 	.icon { min-height: 32px; padding: 2px 10px; }
 </style>
