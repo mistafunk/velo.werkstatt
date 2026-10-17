@@ -4,7 +4,8 @@
 
 	/**
 	 * Admin only: add a single session, e.g. a special Saturday. Suggests the
-	 * next day without a session, with that weekday's regular times if any.
+	 * next day without a session. On a weekday of the session definition the
+	 * times come from the definition; only other days get their own times.
 	 * @type {{ rules: import('./pb.svelte.js').Rule[], taken: Set<string>, from: string, onadded: () => void, oncancel: () => void }}
 	 */
 	let { rules, taken, from, onadded, oncancel } = $props();
@@ -23,18 +24,13 @@
 		return from;
 	}
 
-	const first = suggest();
-	let date = $state(first);
-	// Initial times only; later date changes go through dateChanged().
-	const initial = () => ruleFor(first) ?? rules[0];
+	let date = $state(suggest());
+	const rule = $derived(ruleFor(date));
+	// Times for a day the definition does not cover (initial values only).
+	const initial = () => rules[0];
 	let start = $state(initial()?.start ?? '17:00');
 	let end = $state(initial()?.end ?? '20:00');
 	let error = $state('');
-
-	function dateChanged() {
-		const r = ruleFor(date);
-		if (r) ({ start, end } = r);
-	}
 
 	/** @param {SubmitEvent} e */
 	async function save(e) {
@@ -44,7 +40,8 @@
 			return;
 		}
 		try {
-			await pb.collection('sessions').create({ date, start, end, status: 'open' });
+			const times = rule ? { start: rule.start, end: rule.end } : { start, end };
+			await pb.collection('sessions').create({ date, ...times, status: 'open' });
 			onadded();
 		} catch (err) {
 			const e = /** @type {any} */ (err);
@@ -57,10 +54,13 @@
 <form class="card" onsubmit={save}>
 	<strong>{t('admin.addTitle')}</strong>
 	<div class="fields">
-		<label>{t('hours.date')}<input type="date" required bind:value={date} onchange={dateChanged} /></label>
-		<label>{t('hours.start')}<input type="time" required bind:value={start} /></label>
-		<label>{t('hours.end')}<input type="time" required bind:value={end} /></label>
+		<label>{t('hours.date')}<input type="date" required bind:value={date} /></label>
+		{#if !rule}
+			<label>{t('hours.start')}<input type="time" required bind:value={start} /></label>
+			<label>{t('hours.end')}<input type="time" required bind:value={end} /></label>
+		{/if}
 	</div>
+	{#if rule}<p class="muted">{t('admin.fromDefinition', { start: rule.start, end: rule.end })}</p>{/if}
 	{#if error}<p class="error">{error}</p>{/if}
 	<p class="buttons">
 		<button class="primary">{t('admin.save')}</button>

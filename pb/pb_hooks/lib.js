@@ -22,25 +22,36 @@ function ruleApplies(rule, dateStr) {
   return true;
 }
 
-// Creates the sessions of the next weeks from the opening rules. Existing
-// sessions (including ones marked closed) are left untouched.
-// Returns the number of sessions created.
+// Creates the sessions of the next weeks from the opening rules (the
+// session definition). Times come from the definition only, so existing
+// sessions on a defined weekday get the rule's times. Removed sessions stay
+// removed. Returns the number of sessions created and updated.
 function generateSessions(app, fromDate, weeks) {
   weeks = weeks || WEEKS_AHEAD;
   const rules = app.findAllRecords("opening_rules");
   const collection = app.findCollectionByNameOrId("sessions");
   const start = new Date((fromDate || isoDate(new Date())) + "T00:00:00Z");
   let created = 0;
+  let updated = 0;
   for (let i = 0; i < weeks * 7; i++) {
     const day = new Date(start.getTime() + i * 86400000);
     const dateStr = isoDate(day);
     for (const rule of rules) {
       if (!ruleApplies(rule, dateStr)) continue;
+      let existing = null;
       try {
-        app.findFirstRecordByData("sessions", "date", dateStr);
-        continue;
+        existing = app.findFirstRecordByData("sessions", "date", dateStr);
       } catch (_) {
         // not found, create it below
+      }
+      if (existing) {
+        if (existing.getString("start") !== rule.getString("start") || existing.getString("end") !== rule.getString("end")) {
+          existing.set("start", rule.getString("start"));
+          existing.set("end", rule.getString("end"));
+          app.save(existing);
+          updated++;
+        }
+        continue;
       }
       const e = new Record(collection);
       e.set("date", dateStr);
@@ -51,7 +62,7 @@ function generateSessions(app, fromDate, weeks) {
       created++;
     }
   }
-  return created;
+  return { created, updated };
 }
 
 module.exports = { generateSessions, weekdayOf, isoDate };

@@ -57,8 +57,9 @@ after(() => {
 test("default opening hours are seeded and sessions get generated", async () => {
   const rules = await api("GET", "/api/collections/opening_rules/records?sort=weekday", superToken);
   assert.deepEqual(rules.body.items.map((r) => [r.weekday, r.start, r.end]), [[1, "17:00", "20:00"], [4, "19:00", "21:00"]]);
-  const gen = await api("POST", "/api/velo/generate-sessions", superToken, {});
-  assert.equal(gen.body.created, 24);
+  // The seeded rules already generated their sessions.
+  const sessions = await api("GET", "/api/collections/sessions/records?perPage=1", superToken);
+  assert.equal(sessions.body.totalItems, 24);
   const again = await api("POST", "/api/velo/generate-sessions", superToken, {});
   assert.equal(again.body.created, 0, "existing sessions are not duplicated");
 });
@@ -139,7 +140,7 @@ test("only admins edit opening hours and add or delete sessions", async () => {
   const moved = await api("PATCH", `/api/collections/sessions/records/${ev.body.id}`, erin.token, { start: "11:00" });
   assert.equal(moved.status, 403);
   const retimed = await api("PATCH", `/api/collections/sessions/records/${ev.body.id}`, admin.token, { start: "11:00" });
-  assert.equal(retimed.status, 200);
+  assert.equal(retimed.status, 403, "times come from the session definition");
   assert.equal((await api("DELETE", `/api/collections/sessions/records/${ev.body.id}`, erin.token)).status, 404);
   assert.equal((await api("DELETE", `/api/collections/sessions/records/${ev.body.id}`, admin.token)).status, 204);
 });
@@ -149,12 +150,24 @@ test("generated sessions respect valid_from and valid_to", async () => {
   const from = new Date(Date.now() + 14 * 86400000).toISOString().slice(0, 10);
   const to = new Date(Date.now() + 27 * 86400000).toISOString().slice(0, 10);
   await api("POST", "/api/collections/opening_rules/records", superToken, { weekday: 3, start: "18:00", end: "20:00", valid_from: from, valid_to: to });
-  const gen = await api("POST", "/api/velo/generate-sessions", superToken, {});
-  // Saturdays from the earlier test (12 weeks) + exactly two Wednesdays.
+  // Saving the rule generates its sessions right away.
   const wednesdays = await api("GET", `/api/collections/sessions/records?filter=${encodeURIComponent("start = '18:00'")}`, superToken);
   assert.equal(wednesdays.body.totalItems, 2);
   assert.ok(wednesdays.body.items.every((e) => e.date >= from && e.date <= to));
-  assert.ok(gen.body.created >= 2 && before > 0);
+  assert.ok(before > 0);
+});
+
+test("changing the session definition retimes the upcoming sessions", async () => {
+  const mondayFilter = encodeURIComponent("start = '17:00' && end = '20:00' && date < '2030-01-01'");
+  const rule = (await api("GET", `/api/collections/opening_rules/records?filter=${encodeURIComponent("weekday = 1")}`, superToken)).body.items[0];
+  const mondays = (await api("GET", `/api/collections/sessions/records?filter=${mondayFilter}&perPage=100`, superToken)).body.items;
+  assert.equal(mondays.length, 12);
+  const changed = await api("PATCH", `/api/collections/opening_rules/records/${rule.id}`, superToken, { start: "18:00" });
+  assert.equal(changed.status, 200);
+  for (const m of mondays) {
+    const now = (await api("GET", `/api/collections/sessions/records/${m.id}`, superToken)).body;
+    assert.deepEqual([now.start, now.end, now.status], ["18:00", "20:00", m.status], m.date);
+  }
 });
 
 test("volunteers record visits, the recorder is set by the server", async () => {

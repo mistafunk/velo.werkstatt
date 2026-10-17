@@ -12,16 +12,28 @@ routerAdd("POST", "/api/velo/generate-sessions", (e) => {
   if (!e.auth || (!e.auth.isSuperuser() && !e.auth.getBool("is_admin"))) {
     throw new ForbiddenError("Only admins can generate sessions.");
   }
-  const created = lib.generateSessions($app);
-  return e.json(200, { created });
+  return e.json(200, lib.generateSessions($app));
 }, $apis.requireAuth());
 
-// Volunteers may edit the notes, but only admins may close a session or
-// move it.
+// A changed session definition applies right away.
+onRecordAfterCreateSuccess((e) => {
+  require(`${__hooks}/lib.js`).generateSessions(e.app);
+  e.next();
+}, "opening_rules");
+
+onRecordAfterUpdateSuccess((e) => {
+  require(`${__hooks}/lib.js`).generateSessions(e.app);
+  e.next();
+}, "opening_rules");
+
+// Volunteers may edit the notes, but only admins may remove a session.
+// Nobody moves a single session: its times come from the session
+// definition (opening_rules).
 onRecordUpdateRequest((e) => {
-  if (!e.hasSuperuserAuth() && !e.auth.getBool("is_admin")) {
+  if (!e.hasSuperuserAuth()) {
+    const fields = e.auth.getBool("is_admin") ? ["date", "start", "end"] : ["date", "start", "end", "status", "closed_reason"];
     const original = e.record.original();
-    for (const field of ["date", "start", "end", "status", "closed_reason"]) {
+    for (const field of fields) {
       if (e.record.getString(field) !== original.getString(field)) {
         throw new ForbiddenError("Only admins can change " + field + ".");
       }

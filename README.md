@@ -90,13 +90,16 @@ The importer's own tests: `python3 -m unittest discover tools`.
 ### Opening hours
 
 There is no separate page: admins see an admin mode of the "Termine" list.
-Each card in "Nächste 2 Wochen" has an edit button to change the session's times or
-remove it ("Termin entfernen", also in the session view). Removing
+Each card in "Nächste 2 Wochen" has a ✕ button to remove the session
+("Termin entfernen", also in the session view). Removing
 only marks the session as removed, so the nightly job does not create it
 again; admins still see it greyed out and can restore it. Below the next
 two weeks, a section "Termine verwalten" adds single extra sessions
-("+ Termin") and holds the regular opening hours (weekday, time, valid
-from/until) in a folded box.
+("+ Termin") and holds the "Termin-Definition" (weekday, time, valid
+from/until) in a folded box. Times live only in the definition: changing it
+retimes all upcoming sessions on that weekday right away, and a single
+session cannot be retimed. Only a single session on a day the definition
+does not cover (e.g. a Saturday) gets its own times when it is added.
 
 ## Hosting
 

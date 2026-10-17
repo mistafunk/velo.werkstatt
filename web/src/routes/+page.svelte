@@ -23,8 +23,6 @@
 	let error = $state('');
 	let weeks = $state(2);
 	let adding = $state(false);
-	/** The session being edited by an admin, with its unsaved times. */
-	let editing = $state(/** @type {{ id: string, start: string, end: string } | null} */ (null));
 
 	const isAdmin = $derived(!!auth.user?.is_admin);
 	const byId = $derived(new Map(volunteers.map((v) => [v.id, v])));
@@ -77,7 +75,6 @@
 	async function update(session, changes) {
 		try {
 			Object.assign(session, await pb.collection('sessions').update(session.id, changes));
-			editing = null;
 		} catch (err) {
 			fail(err);
 		}
@@ -116,23 +113,12 @@
 				</a>
 				<span class="right">
 					<StaffingBadge s={row.s} />
-					{#if isAdmin && !removed && editing?.id !== row.session.id}
-						<button class="icon" aria-label={t('admin.edit')} title={t('admin.edit')}
-							onclick={() => (editing = { id: row.session.id, start: row.session.start, end: row.session.end })}>✎</button>
+					{#if isAdmin && !removed}
+						<button class="icon danger" aria-label={t('admin.remove')} title={t('admin.remove')} onclick={() => remove(row.session)}>✕</button>
 					{/if}
 				</span>
 			</div>
-			{#if editing && editing.id === row.session.id}
-				<div class="edit">
-					<label>{t('hours.start')}<input type="time" bind:value={editing.start} /></label>
-					<label>{t('hours.end')}<input type="time" bind:value={editing.end} /></label>
-				</div>
-				<p class="buttons">
-					<button class="primary" onclick={() => editing && update(row.session, { start: editing.start, end: editing.end })}>{t('admin.save')}</button>
-					<button onclick={() => (editing = null)}>{t('admin.cancel')}</button>
-					<button class="danger" onclick={() => remove(row.session)}>{t('admin.remove')}</button>
-				</p>
-			{:else if removed}
+			{#if removed}
 				{#if row.session.closed_reason}<p class="muted">{t('session.closedBecause', { reason: row.session.closed_reason })}</p>{/if}
 				<p class="buttons"><button onclick={() => update(row.session, { status: 'open', closed_reason: '' })}>{t('admin.restore')}</button></p>
 			{:else}
@@ -184,8 +170,6 @@
 	.date .muted { white-space: nowrap; }
 	.names { margin: 8px 0; min-height: 1.4em; }
 	.icon { min-height: 32px; padding: 2px 10px; }
-	.edit { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-	.edit label { margin: 8px 0 0; font-size: 0.85rem; color: var(--muted); }
 	.buttons { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 0; }
 	.danger { color: var(--red); border-color: var(--red); }
 	.removed { opacity: 0.6; }
