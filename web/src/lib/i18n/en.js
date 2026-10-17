@@ -93,6 +93,11 @@ export default {
 	'admin.confirmRemove': 'Remove the session of {date}? It disappears from the list for everyone.',
 	'admin.exists': 'There is already a session on this day.',
 	'schedule.more': 'More sessions',
+	'schedule.upcoming': 'Next 2 weeks',
+	'schedule.past': 'Past sessions',
+	'schedule.pastStats': 'Visitors: {visitors} · Material: CHF {material}',
+	'schedule.older': 'Older sessions',
+	'schedule.noPast': 'No past sessions yet.',
 	'common.back': 'Back',
 	'common.error': 'Something went wrong: {message}',
 	'common.loading': 'Loading …'

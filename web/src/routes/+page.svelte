@@ -9,6 +9,7 @@
 	import StaffingBadge from '#lib/StaffingBadge.svelte';
 	import RulesEditor from '#lib/RulesEditor.svelte';
 	import AddSession from '#lib/AddSession.svelte';
+	import PastSessions from '#lib/PastSessions.svelte';
 
 	/** @type {import('#lib/pb.svelte.js').Session[]} */
 	let sessions = $state([]);
@@ -21,7 +22,7 @@
 	let loading = $state(true);
 	let error = $state('');
 	let onlyNeeds = $state(false);
-	let weeks = $state(8);
+	let weeks = $state(2);
 	let adding = $state(false);
 	/** The session being edited by an admin, with its unsaved times. */
 	let editing = $state(/** @type {{ id: string, start: string, end: string } | null} */ (null));
@@ -113,6 +114,7 @@
 		/>
 	{/if}
 {/if}
+<h2>{t('schedule.upcoming')}</h2>
 <label class="check"><input type="checkbox" bind:checked={onlyNeeds} />{t('schedule.needsPeople')}</label>
 {#if error}<p class="error">{error}</p>{/if}
 {#if loading}
@@ -165,8 +167,10 @@
 	{/each}
 </ul>
 {#if !loading}
-	<p class="more"><button onclick={() => { weeks += 8; load(); }}>{t('schedule.more')}</button></p>
+	<p class="more"><button onclick={() => { weeks += 4; load(); }}>{t('schedule.more')}</button></p>
 {/if}
+
+<PastSessions />
 
 <style>
 	.title { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px; }

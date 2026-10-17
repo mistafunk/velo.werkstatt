@@ -92,6 +92,11 @@ export default {
 	'admin.confirmRemove': 'Termin vom {date} entfernen? Er verschwindet für alle aus der Liste.',
 	'admin.exists': 'An diesem Tag gibt es schon einen Termin.',
 	'schedule.more': 'Weitere Termine',
+	'schedule.upcoming': 'Nächste 2 Wochen',
+	'schedule.past': 'Vergangene Termine',
+	'schedule.pastStats': 'Besucher: {visitors} · Material: CHF {material}',
+	'schedule.older': 'Ältere Termine',
+	'schedule.noPast': 'Noch keine vergangenen Termine.',
 	'common.back': 'Zurück',
 	'common.error': 'Etwas ist schiefgegangen: {message}',
 	'common.loading': 'Lädt …'
