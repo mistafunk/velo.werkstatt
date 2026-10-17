@@ -5,7 +5,8 @@
 	import { t, formatDate } from '#lib/i18n/index.svelte.js';
 	import { staffing } from '#lib/staffing.js';
 	import { saveAnswer } from '#lib/schedule.js';
-	import AnswerButtons from '#lib/AnswerButtons.svelte';
+	import MyAnswer from '#lib/MyAnswer.svelte';
+	import VisitList from '#lib/VisitList.svelte';
 	import StaffingBadge from '#lib/StaffingBadge.svelte';
 
 	/** @type {import('#lib/pb.svelte.js').Session | null} */
@@ -86,8 +87,9 @@
 	{:else}
 		<div class="card">
 			<strong>{t('schedule.myAnswer')}</strong>
-			<div><AnswerButtons value={myAnswer} onchange={answer} /></div>
+			<MyAnswer value={myAnswer} onchange={answer} />
 		</div>
+		<VisitList sessionId={session.id} />
 	{/if}
 
 	<div class="grid">

@@ -154,3 +154,19 @@ test("generated sessions respect valid_from and valid_to", async () => {
   assert.ok(wednesdays.body.items.every((e) => e.date >= from && e.date <= to));
   assert.ok(gen.body.created >= 2 && before > 0);
 });
+
+test("volunteers record visits, the recorder is set by the server", async () => {
+  const vera = await createVolunteer("vera");
+  const other = await createVolunteer("otto");
+  const ev = await api("POST", "/api/collections/sessions/records", superToken, { date: "2031-03-03", start: "17:00", end: "20:00", status: "open" });
+  const visit = await api("POST", "/api/collections/visits/records", vera.token, {
+    session: ev.body.id, arrived: "17:20", entry_fee: 5, material: 10, payment: "twint", contact: "079 000 00 00", recorded_by: other.id,
+  });
+  assert.equal(visit.status, 200, JSON.stringify(visit.body));
+  assert.equal(visit.body.recorded_by, vera.id);
+  const paid = await api("PATCH", `/api/collections/visits/records/${visit.body.id}`, other.token, { payment: "cash" });
+  assert.equal(paid.status, 200);
+  const negative = await api("POST", "/api/collections/visits/records", vera.token, { session: ev.body.id, entry_fee: -5, payment: "cash" });
+  assert.equal(negative.status, 400);
+  assert.equal((await api("GET", "/api/collections/visits/records", null)).body.totalItems, 0, "guests see no visits");
+});

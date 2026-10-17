@@ -5,7 +5,7 @@
 	import { t, formatDate } from '#lib/i18n/index.svelte.js';
 	import { staffing, NEEDS_PEOPLE } from '#lib/staffing.js';
 	import { loadSchedule, saveAnswer } from '#lib/schedule.js';
-	import AnswerButtons from '#lib/AnswerButtons.svelte';
+	import MyAnswer from '#lib/MyAnswer.svelte';
 	import StaffingBadge from '#lib/StaffingBadge.svelte';
 
 	/** @type {import('#lib/pb.svelte.js').Session[]} */
@@ -75,7 +75,7 @@
 
 <ul class="sessions">
 	{#each rows as row (row.session.id)}
-		<li class="card">
+		<li class="card mine-{row.session.status === 'closed' ? 'closed' : (row.myAnswer ?? 'none')}">
 			<div class="top">
 				<a href={resolve('/session/[id]', { id: row.session.id })} class="date">
 					{formatDate(row.session.date)}
@@ -93,7 +93,7 @@
 						<span class="muted">{t('schedule.nobody')}</span>
 					{/if}
 				</p>
-				<AnswerButtons value={row.myAnswer} onchange={(a) => answer(row.session.id, a)} />
+				<MyAnswer value={row.myAnswer} onchange={(a) => answer(row.session.id, a)} />
 			{/if}
 		</li>
 	{/each}
@@ -105,4 +105,6 @@
 	.date { font-weight: 600; color: var(--text); text-decoration: none; }
 	.date .muted { white-space: nowrap; }
 	.names { margin: 8px 0; min-height: 1.4em; }
+	.card.mine-yes { border-left: 6px solid var(--green); }
+	.card.mine-none { border-left: 6px dashed var(--amber); }
 </style>

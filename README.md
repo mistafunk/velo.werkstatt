@@ -7,7 +7,7 @@ their phones and on the workshop tablet, in German or English.
 A **session** (German: Termin) is one time slot the workshop is open, usually an
 evening, sometimes a Saturday afternoon.
 
-Phase 1 (this version) is the **volunteer schedule**: every volunteer says
+Phase 1 (this version) is the **volunteer schedule** ("Termine"), plus a first quick visit list per session: every volunteer says
 Yes or No for each session (Mon 17–20, Thu 19–21), and every
 session shows whether it is staffed (at least 1, ideally 2, best 3 people)
 and whether someone with a workshop key is coming. Next up are the visitor
