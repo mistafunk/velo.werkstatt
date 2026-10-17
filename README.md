@@ -98,8 +98,9 @@ two weeks, a section "Termine verwalten" adds single extra sessions
 ("+ Termin") and holds the "Periodische Termine" (weekday and time) in a
 folded box. They always apply from now on: changing them retimes all
 future sessions on that weekday right away, except a session that has
-already started (Zurich time). A single session cannot be retimed. Only a single session on a day they do not cover (e.g. a
-Saturday) gets its own times when it is added.
+already started (Zurich time). A single session cannot be retimed. Only a
+single session on a day they do not cover (e.g. a Saturday) gets its own
+times when it is added.
 
 ## Hosting
 
