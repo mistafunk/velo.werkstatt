@@ -38,8 +38,6 @@ body {
 header, nav, main { max-width: 960px; margin: 0 auto; padding: 0 16px; }
 header { display: flex; justify-content: space-between; align-items: center; padding-top: 12px; }
 .brand { font-weight: 700; color: var(--text); text-decoration: none; }
-.lang button { padding: 4px 8px; min-height: 0; }
-.lang button.active { background: var(--accent); color: white; border-color: var(--accent); }
 nav { display: flex; gap: 16px; flex-wrap: wrap; padding-top: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
 nav a { color: var(--muted); text-decoration: none; }
 nav a.current { color: var(--text); font-weight: 600; }
