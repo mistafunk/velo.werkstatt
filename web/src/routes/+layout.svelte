@@ -49,9 +49,6 @@
 		<a href={resolve('/volunteers')} class:current={page.url.pathname === resolve('/volunteers')}
 			>{t('nav.volunteers')}</a
 		>
-		{#if auth.user.is_admin}
-			<a href={resolve('/hours')} class:current={page.url.pathname === resolve('/hours')}>{t('nav.hours')}</a>
-		{/if}
 		<a href={resolve('/volunteers/[id]', { id: auth.user.id })}>{t('nav.profile')}</a>
 		<button class="link" onclick={() => { logout(); goto(resolve('/login')); }}>{t('nav.logout')}</button>
 	</nav>

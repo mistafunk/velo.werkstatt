@@ -1,12 +1,14 @@
 <script>
 	import { resolve } from '$app/paths';
 	import { onMount } from 'svelte';
-	import { pb, auth } from '#lib/pb.svelte.js';
+	import { pb, auth, todayIso } from '#lib/pb.svelte.js';
 	import { t, formatDate } from '#lib/i18n/index.svelte.js';
 	import { staffing, NEEDS_PEOPLE } from '#lib/staffing.js';
 	import { loadSchedule, saveAnswer } from '#lib/schedule.js';
 	import MyAnswer from '#lib/MyAnswer.svelte';
 	import StaffingBadge from '#lib/StaffingBadge.svelte';
+	import RulesEditor from '#lib/RulesEditor.svelte';
+	import AddSession from '#lib/AddSession.svelte';
 
 	/** @type {import('#lib/pb.svelte.js').Session[]} */
 	let sessions = $state([]);
@@ -14,13 +16,22 @@
 	let answers = $state([]);
 	/** @type {import('#lib/pb.svelte.js').Volunteer[]} */
 	let volunteers = $state([]);
+	/** @type {import('#lib/pb.svelte.js').Rule[]} */
+	let rules = $state([]);
 	let loading = $state(true);
 	let error = $state('');
 	let onlyNeeds = $state(false);
+	let weeks = $state(8);
+	let adding = $state(false);
+	/** The session being edited by an admin, with its unsaved times. */
+	let editing = $state(/** @type {{ id: string, start: string, end: string } | null} */ (null));
 
+	const isAdmin = $derived(!!auth.user?.is_admin);
 	const byId = $derived(new Map(volunteers.map((v) => [v.id, v])));
 	const rows = $derived(
 		sessions
+			// Removed sessions are only shown to admins, so they can restore them.
+			.filter((e) => isAdmin || e.status !== 'closed')
 			.map((e) => {
 				const mine = answers.filter((a) => a.session === e.id);
 				return {
@@ -33,11 +44,15 @@
 			.filter((r) => !onlyNeeds || NEEDS_PEOPLE.has(r.s.level))
 	);
 
+	/** @param {unknown} err */
+	const fail = (err) => (error = t('common.error', { message: /** @type {Error} */ (err).message }));
+
 	async function load() {
 		try {
-			({ sessions, answers, volunteers } = await loadSchedule());
+			({ sessions, answers, volunteers } = await loadSchedule(weeks));
+			if (isAdmin) rules = /** @type {any} */ (await pb.collection('opening_rules').getFullList({ sort: 'weekday,start' }));
 		} catch (err) {
-			error = t('common.error', { message: /** @type {Error} */ (err).message });
+			fail(err);
 		} finally {
 			loading = false;
 		}
@@ -52,8 +67,26 @@
 		try {
 			await saveAnswer(answers, sessionId, auth.user.id, answer);
 		} catch (err) {
-			error = t('common.error', { message: /** @type {Error} */ (err).message });
+			fail(err);
 		}
+	}
+
+	/**
+	 * @param {import('#lib/pb.svelte.js').Session} session
+	 * @param {Record<string, unknown>} changes
+	 */
+	async function update(session, changes) {
+		try {
+			Object.assign(session, await pb.collection('sessions').update(session.id, changes));
+			editing = null;
+		} catch (err) {
+			fail(err);
+		}
+	}
+
+	/** @param {import('#lib/pb.svelte.js').Session} session */
+	function remove(session) {
+		if (confirm(t('admin.confirmRemove', { date: formatDate(session.date) }))) update(session, { status: 'closed' });
 	}
 
 	onMount(() => {
@@ -64,7 +97,22 @@
 	});
 </script>
 
-<h1>{t('schedule.title')}</h1>
+<div class="title">
+	<h1>{t('schedule.title')}</h1>
+	{#if isAdmin && !adding}<button class="primary" onclick={() => (adding = true)}>{t('admin.add')}</button>{/if}
+</div>
+{#if isAdmin}
+	<RulesEditor {rules} onchange={load} />
+	{#if adding}
+		<AddSession
+			{rules}
+			from={todayIso()}
+			taken={new Set(sessions.map((e) => e.date))}
+			onadded={() => { adding = false; load(); }}
+			oncancel={() => (adding = false)}
+		/>
+	{/if}
+{/if}
 <label class="check"><input type="checkbox" bind:checked={onlyNeeds} />{t('schedule.needsPeople')}</label>
 {#if error}<p class="error">{error}</p>{/if}
 {#if loading}
@@ -75,16 +123,34 @@
 
 <ul class="sessions">
 	{#each rows as row (row.session.id)}
-		<li class="card">
+		{@const removed = row.session.status === 'closed'}
+		<li class="card" class:removed>
 			<div class="top">
 				<a href={resolve('/session/[id]', { id: row.session.id })} class="date">
 					{formatDate(row.session.date)}
 					<span class="muted">{row.session.start}–{row.session.end}</span>
 				</a>
-				<StaffingBadge s={row.s} />
+				<span class="right">
+					<StaffingBadge s={row.s} />
+					{#if isAdmin && !removed && editing?.id !== row.session.id}
+						<button class="icon" aria-label={t('admin.edit')} title={t('admin.edit')}
+							onclick={() => (editing = { id: row.session.id, start: row.session.start, end: row.session.end })}>✎</button>
+					{/if}
+				</span>
 			</div>
-			{#if row.session.status === 'closed'}
-				<p class="muted">{t('session.closedBecause', { reason: row.session.closed_reason })}</p>
+			{#if editing && editing.id === row.session.id}
+				<div class="edit">
+					<label>{t('hours.start')}<input type="time" bind:value={editing.start} /></label>
+					<label>{t('hours.end')}<input type="time" bind:value={editing.end} /></label>
+				</div>
+				<p class="buttons">
+					<button class="primary" onclick={() => editing && update(row.session, { start: editing.start, end: editing.end })}>{t('admin.save')}</button>
+					<button onclick={() => (editing = null)}>{t('admin.cancel')}</button>
+					<button class="danger" onclick={() => remove(row.session)}>{t('admin.remove')}</button>
+				</p>
+			{:else if removed}
+				{#if row.session.closed_reason}<p class="muted">{t('session.closedBecause', { reason: row.session.closed_reason })}</p>{/if}
+				<p class="buttons"><button onclick={() => update(row.session, { status: 'open', closed_reason: '' })}>{t('admin.restore')}</button></p>
 			{:else}
 				<p class="names">
 					{#if row.coming.length}
@@ -98,11 +164,25 @@
 		</li>
 	{/each}
 </ul>
+{#if !loading}
+	<p class="more"><button onclick={() => { weeks += 8; load(); }}>{t('schedule.more')}</button></p>
+{/if}
 
 <style>
+	.title { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px; }
+	.title h1 { margin: 0; }
 	.sessions { list-style: none; padding: 0; display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
 	.top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+	.right { display: flex; align-items: center; gap: 6px; }
 	.date { font-weight: 600; color: var(--text); text-decoration: none; }
 	.date .muted { white-space: nowrap; }
 	.names { margin: 8px 0; min-height: 1.4em; }
+	.icon { min-height: 32px; padding: 2px 10px; }
+	.edit { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+	.edit label { margin: 8px 0 0; font-size: 0.85rem; color: var(--muted); }
+	.buttons { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 0; }
+	.danger { color: var(--red); border-color: var(--red); }
+	.removed { opacity: 0.6; }
+	.removed .date { text-decoration: line-through; }
+	.more { text-align: center; }
 </style>

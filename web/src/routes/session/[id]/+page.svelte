@@ -1,6 +1,7 @@
 <script>
 	import { page } from '$app/state';
 	import { resolve } from '$app/paths';
+	import { goto } from '$app/navigation';
 	import { pb, auth } from '#lib/pb.svelte.js';
 	import { t, formatDate } from '#lib/i18n/index.svelte.js';
 	import { staffing } from '#lib/staffing.js';
@@ -18,6 +19,7 @@
 	let error = $state('');
 	let saved = $state(false);
 
+	const isAdmin = $derived(!!auth.user?.is_admin);
 	const byId = $derived(new Map(volunteers.map((v) => [v.id, v])));
 	const s = $derived(session ? staffing(session, answers, byId) : null);
 	/** @param {string} answer */
@@ -66,6 +68,12 @@
 		}
 	}
 
+	async function remove() {
+		if (!session || !confirm(t('admin.confirmRemove', { date: formatDate(session.date) }))) return;
+		await update({ status: 'closed' });
+		if (!error) goto(resolve('/'));
+	}
+
 	$effect(() => {
 		load();
 	});
@@ -84,7 +92,7 @@
 	</p>
 
 	{#if session.status === 'closed'}
-		<p>{t('session.closedBecause', { reason: session.closed_reason })}</p>
+		<p>{session.closed_reason ? t('session.closedBecause', { reason: session.closed_reason }) : t('staffing.closed')}</p>
 	{:else}
 		<VisitList sessionId={session.id} />
 	{/if}
@@ -106,10 +114,19 @@
 		></textarea>
 		{#if saved}<p class="ok">{t('session.saved')}</p>{/if}
 	</div>
+
+	{#if isAdmin}
+		{#if session.status === 'closed'}
+			<p><button onclick={() => update({ status: 'open', closed_reason: '' })}>{t('admin.restore')}</button></p>
+		{:else}
+			<p><button class="danger" onclick={remove}>{t('admin.remove')}</button></p>
+		{/if}
+	{/if}
 {/if}
 
 <style>
 	.badges { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 	.card { margin-bottom: 12px; }
 	ul { margin: 8px 0 0; padding-left: 20px; }
+	.danger { color: var(--red); border-color: var(--red); }
 </style>
