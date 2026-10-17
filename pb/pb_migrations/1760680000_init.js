@@ -86,7 +86,7 @@ migrate((app) => {
     fields: [
       { type: "relation", name: "session", collectionId: sessions.id, maxSelect: 1, required: true, cascadeDelete: true },
       { type: "relation", name: "volunteer", collectionId: users.id, maxSelect: 1, required: true, cascadeDelete: true },
-      { type: "select", name: "answer", values: ["yes", "maybe", "no"], maxSelect: 1, required: true },
+      { type: "select", name: "answer", values: ["yes", "no"], maxSelect: 1, required: true },
       { type: "autodate", name: "updated", onCreate: true, onUpdate: true },
     ],
     indexes: ["CREATE UNIQUE INDEX idx_availability_pair ON availability (session, volunteer)"],

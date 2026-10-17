@@ -58,7 +58,7 @@
 		}
 	}
 
-	/** @param {'yes' | 'maybe' | 'no'} a */
+	/** @param {'yes' | 'no'} a */
 	async function answer(a) {
 		if (!session || !auth.user) return;
 		try {
@@ -91,7 +91,7 @@
 	{/if}
 
 	<div class="grid">
-		{#each [['yes', 'session.coming'], ['maybe', 'session.maybe'], ['no', 'session.notComing']] as [key, label] (key)}
+		{#each [['yes', 'session.coming'], ['no', 'session.notComing']] as [key, label] (key)}
 			<div class="card">
 				<strong>{t(/** @type {any} */ (label))}</strong>
 				<ul>

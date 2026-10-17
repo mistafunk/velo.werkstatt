@@ -1,9 +1,9 @@
 <script>
 	import { t } from '#lib/i18n/index.svelte.js';
 
-	/** @type {{ value: string | undefined, onchange: (answer: 'yes' | 'maybe' | 'no') => void, disabled?: boolean }} */
+	/** @type {{ value: string | undefined, onchange: (answer: 'yes' | 'no') => void, disabled?: boolean }} */
 	let { value, onchange, disabled = false } = $props();
-	const options = /** @type {const} */ (['yes', 'maybe', 'no']);
+	const options = /** @type {const} */ (['yes', 'no']);
 </script>
 
 <div class="segmented" role="group">

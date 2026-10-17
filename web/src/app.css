@@ -73,5 +73,4 @@ input:not([type='checkbox']), select, textarea { width: 100%; }
 .segmented button { border: none; border-radius: 0; border-right: 1px solid var(--border); }
 .segmented button:last-child { border-right: none; }
 .segmented button.sel-yes { background: var(--green); color: white; }
-.segmented button.sel-maybe { background: var(--amber); color: white; }
 .segmented button.sel-no { background: var(--grey); color: white; }

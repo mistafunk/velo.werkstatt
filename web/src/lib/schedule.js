@@ -10,7 +10,7 @@ import { pb, todayIso } from './pb.svelte.js';
  * @param {import('./pb.svelte.js').Answer[]} answers all known answers (updated in place)
  * @param {string} sessionId
  * @param {string} volunteerId
- * @param {'yes' | 'maybe' | 'no'} answer
+ * @param {'yes' | 'no'} answer
  */
 export async function saveAnswer(answers, sessionId, volunteerId, answer) {
 	const existing = answers.find((a) => a.session === sessionId && a.volunteer === volunteerId);

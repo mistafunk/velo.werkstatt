@@ -74,8 +74,10 @@ test("volunteers manage only their own answers", async () => {
   assert.equal(other.status, 400);
   const dup = await api("POST", "/api/collections/availability/records", anna.token, { session: ev.id, volunteer: anna.id, answer: "no" });
   assert.equal(dup.status, 400, "one answer per volunteer and session");
-  const change = await api("PATCH", `/api/collections/availability/records/${own.body.id}`, anna.token, { answer: "maybe" });
+  const change = await api("PATCH", `/api/collections/availability/records/${own.body.id}`, anna.token, { answer: "no" });
   assert.equal(change.status, 200);
+  const maybe = await api("PATCH", `/api/collections/availability/records/${own.body.id}`, anna.token, { answer: "maybe" });
+  assert.equal(maybe.status, 400, "there is no maybe");
   const steal = await api("PATCH", `/api/collections/availability/records/${own.body.id}`, beat.token, { answer: "no" });
   assert.equal(steal.status, 404);
   const hijack = await api("PATCH", `/api/collections/availability/records/${own.body.id}`, anna.token, { volunteer: beat.id });

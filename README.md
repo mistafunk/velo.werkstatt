@@ -8,7 +8,7 @@ A **session** (German: Termin) is one time slot the workshop is open, usually an
 evening, sometimes a Saturday afternoon.
 
 Phase 1 (this version) is the **volunteer schedule**: every volunteer says
-Yes / Maybe / No for each session (Mon 17–20, Thu 19–21), and every
+Yes or No for each session (Mon 17–20, Thu 19–21), and every
 session shows whether it is staffed (at least 1, ideally 2, best 3 people)
 and whether someone with a workshop key is coming. Next up are the visitor
 log (entry fee, material, cash or TWINT) and later the inventory.
@@ -24,7 +24,7 @@ log (entry fee, material, cash or TWINT) and later the inventory.
 
 Rules the app enforces:
 
-- Staffing: "Maybe" does not count. A session with people but no key holder is red. See `web/src/lib/staffing.js`.
+- Answers are Yes or No only (no Maybe, it makes planning too uncertain). A session with people but no key holder is red. See `web/src/lib/staffing.js`.
 - Volunteers can only change their own answers, name, phone and language.
 - Only admins (`is_admin`) can add people, hand out keys, make admins, deactivate people and close sessions (holidays).
 - Sessions are created automatically every night for the next 12 weeks from the opening hours.

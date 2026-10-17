@@ -9,7 +9,7 @@ export const pb = new PocketBase(typeof window === 'undefined' ? 'http://127.0.0
  *   is_admin: boolean, active: boolean, lang: '' | 'de' | 'en' }} Volunteer
  * @typedef {{ id: string, date: string, start: string, end: string, status: 'open' | 'closed',
  *   closed_reason: string, lead: string, notes: string }} Session
- * @typedef {{ id: string, session: string, volunteer: string, answer: 'yes' | 'maybe' | 'no' }} Answer
+ * @typedef {{ id: string, session: string, volunteer: string, answer: 'yes' | 'no' }} Answer
  */
 
 /** The logged in volunteer, kept in sync with the PocketBase auth store. */

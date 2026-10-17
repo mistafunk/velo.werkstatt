@@ -45,7 +45,7 @@
 
 	/**
 	 * @param {string} sessionId
-	 * @param {'yes' | 'maybe' | 'no'} answer
+	 * @param {'yes' | 'no'} answer
 	 */
 	async function answer(sessionId, answer) {
 		if (!auth.user) return;

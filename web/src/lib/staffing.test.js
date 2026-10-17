@@ -17,16 +17,16 @@ test('closed sessions are closed whatever the answers', () => {
 });
 
 test('nobody signed up', () => {
-	assert.equal(staffing(open, answers([['keyA', 'maybe'], ['helperA', 'no']]), volunteers).level, 'empty');
+	assert.equal(staffing(open, answers([['keyA', 'no'], ['helperA', 'no']]), volunteers).level, 'empty');
 });
 
 test('people without a key are not enough', () => {
 	const s = staffing(open, answers([['helperA', 'yes'], ['helperB', 'yes']]), volunteers);
-	assert.deepEqual(s, { level: 'nokey', yes: 2, maybe: 0, hasKey: false });
+	assert.deepEqual(s, { level: 'nokey', yes: 2, hasKey: false });
 });
 
-test('a maybe from a key holder does not count', () => {
-	assert.equal(staffing(open, answers([['helperA', 'yes'], ['keyA', 'maybe']]), volunteers).level, 'nokey');
+test('a no from a key holder leaves the session without a key', () => {
+	assert.equal(staffing(open, answers([['helperA', 'yes'], ['keyA', 'no']]), volunteers).level, 'nokey');
 });
 
 test('levels by number of people with a key holder present', () => {

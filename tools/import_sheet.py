@@ -2,7 +2,7 @@
 """Rebuild the app's schedule data from the "Wer Wann" spreadsheet.
 
 Reads every "Wer Wann <year>" tab of the workbook (2022 onwards) and creates
-volunteers, sessions and Yes / Maybe / No answers in PocketBase. Until the
+volunteers, sessions and Yes / No answers in PocketBase. Until the
 switch-over the spreadsheet stays the source of truth, so the importer can
 wipe the app's schedule data and load it again from the latest sheet.
 
@@ -22,7 +22,7 @@ How the sheet is read:
   shift lead column ("ScheffIn", "Scheff", "Total", "Bargeld").
 - "Name (Reserve)" becomes "Name"; the same name in different years is
   the same volunteer.
-- Yep / (Ev) / Nope become yes / maybe / no.
+- Yep becomes yes; (Ev) and Nope become no (the app has no maybe).
 - Tabs with a 🔑 column: a session without a key status is closed, and its
   remark becomes the reason.
 - "ScheffIn" becomes the session's lead, "Bemerkungen" its notes, and the
@@ -48,7 +48,7 @@ import urllib.request
 
 import openpyxl
 
-ANSWERS = {"yep": "yes", "(ev)": "maybe", "nope": "no"}
+ANSWERS = {"yep": "yes", "(ev)": "no", "nope": "no"}
 END_OF_VOLUNTEERS = ("scheff", "total", "bargeld")
 STATUS_HEADERS = ("🔑", "🧑")
 YELLOW = "FFFFFF00"
