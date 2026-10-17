@@ -113,7 +113,7 @@
 				<span class="right">
 					<StaffingBadge s={row.s} />
 					{#if isAdmin && !removed}
-						<button class="icon" aria-label={t('admin.remove')} title={t('admin.remove')} onclick={() => remove(row.session)}>✕</button>
+						<button class="icon destructive" aria-label={t('admin.remove')} title={t('admin.remove')} onclick={() => remove(row.session)}>✕</button>
 					{/if}
 				</span>
 			</div>

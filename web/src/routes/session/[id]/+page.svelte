@@ -119,7 +119,7 @@
 		{#if session.status === 'closed'}
 			<p><button onclick={() => update({ status: 'open', closed_reason: '' })}>{t('admin.restore')}</button></p>
 		{:else}
-			<p><button onclick={remove}>{t('admin.remove')}</button></p>
+			<p><button class="destructive" onclick={remove}>{t('admin.remove')}</button></p>
 		{/if}
 	{/if}
 {/if}

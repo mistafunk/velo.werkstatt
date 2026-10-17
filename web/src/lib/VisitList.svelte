@@ -106,7 +106,7 @@
 						<label>{t('visits.label')}<input value={v.label} onchange={(e) => save(v, { label: e.currentTarget.value })} /></label>
 						<label>{t('visits.contact')}<input value={v.contact} onchange={(e) => save(v, { contact: e.currentTarget.value })} /></label>
 						<label>{t('visits.notes')}<input value={v.notes} onchange={(e) => save(v, { notes: e.currentTarget.value })} /></label>
-						<p><button onclick={() => remove(v)}>{t('visits.delete')}</button></p>
+						<p><button class="destructive" onclick={() => remove(v)}>{t('visits.delete')}</button></p>
 					</div>
 				{/if}
 			</li>

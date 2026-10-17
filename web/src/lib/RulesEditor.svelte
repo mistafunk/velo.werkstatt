@@ -70,7 +70,7 @@
 				</select></label>
 				<label class="field"><span>{t('hours.start')}</span><input type="time" bind:value={rule.start} onchange={() => saveRule(rule)} /></label>
 				<label class="field"><span>{t('hours.end')}</span><input type="time" bind:value={rule.end} onchange={() => saveRule(rule)} /></label>
-				<button onclick={() => run(() => pb.collection('opening_rules').delete(rule.id))}>{t('hours.delete')}</button>
+				<button class="destructive" onclick={() => run(() => pb.collection('opening_rules').delete(rule.id))}>{t('hours.delete')}</button>
 			</div>
 		{/each}
 		<form class="row" onsubmit={addRule}>

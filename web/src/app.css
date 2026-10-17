@@ -59,6 +59,7 @@ button, input, select, textarea {
    colour. Selectors and toggles (segmented controls, Ja/Nein, Ich) and plain
    links opt out below or in their own components. */
 button { cursor: pointer; background: var(--action); border-color: var(--action); color: white; font-weight: 600; }
+button.destructive { background: var(--red); border-color: var(--red); }
 button:disabled { opacity: 0.6; cursor: default; }
 /* A link that starts an action looks like an action button. */
 a.button { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 12px; border-radius: 8px; background: var(--action); color: white; font-weight: 600; text-decoration: none; }
