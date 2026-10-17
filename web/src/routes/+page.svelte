@@ -75,7 +75,7 @@
 
 <ul class="sessions">
 	{#each rows as row (row.session.id)}
-		<li class="card mine-{row.session.status === 'closed' ? 'closed' : (row.myAnswer ?? 'none')}">
+		<li class="card">
 			<div class="top">
 				<a href={resolve('/session/[id]', { id: row.session.id })} class="date">
 					{formatDate(row.session.date)}
@@ -105,6 +105,4 @@
 	.date { font-weight: 600; color: var(--text); text-decoration: none; }
 	.date .muted { white-space: nowrap; }
 	.names { margin: 8px 0; min-height: 1.4em; }
-	.card.mine-yes { border-left: 6px solid var(--green); }
-	.card.mine-none { border-left: 6px dashed var(--amber); }
 </style>
