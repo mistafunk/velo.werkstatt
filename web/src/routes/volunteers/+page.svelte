@@ -57,6 +57,7 @@
 					<span>
 						<strong>{v.name}</strong>
 						{#if v.has_key}<span class="badge">🔑 {t('volunteers.key')}</span>{/if}
+						{#if v.is_admin}<span class="badge">{t('volunteers.admin')}</span>{/if}
 					</span>
 				{/if}
 			</div>
