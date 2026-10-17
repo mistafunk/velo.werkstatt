@@ -8,7 +8,7 @@ export default {
 	'hours.weekday': 'Wochentag',
 	'hours.start': 'Von',
 	'hours.end': 'Bis',
-	'hours.addRule': 'Regel hinzufügen',
+	'hours.addRule': 'Periodischen Termin hinzufügen',
 	'hours.delete': 'Löschen',
 	'hours.date': 'Datum',
 	'weekday.1': 'Montag',

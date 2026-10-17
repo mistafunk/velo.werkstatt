@@ -9,7 +9,7 @@ export default {
 	'hours.weekday': 'Weekday',
 	'hours.start': 'From',
 	'hours.end': 'To',
-	'hours.addRule': 'Add rule',
+	'hours.addRule': 'Add periodic session',
 	'hours.delete': 'Delete',
 	'hours.date': 'Date',
 	'weekday.1': 'Monday',
