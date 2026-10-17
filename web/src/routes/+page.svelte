@@ -96,22 +96,7 @@
 	});
 </script>
 
-<div class="title">
-	<h1>{t('schedule.title')}</h1>
-	{#if isAdmin && !adding}<button class="primary" onclick={() => (adding = true)}>{t('admin.add')}</button>{/if}
-</div>
-{#if isAdmin}
-	<RulesEditor {rules} onchange={load} />
-	{#if adding}
-		<AddSession
-			{rules}
-			from={todayIso()}
-			taken={new Set(sessions.map((e) => e.date))}
-			onadded={() => { adding = false; load(); }}
-			oncancel={() => (adding = false)}
-		/>
-	{/if}
-{/if}
+<h1>{t('schedule.title')}</h1>
 <h2>{t('schedule.upcoming')}</h2>
 {#if error}<p class="error">{error}</p>{/if}
 {#if loading}
@@ -167,11 +152,31 @@
 	<p class="more"><button onclick={() => { weeks += 4; load(); }}>{t('schedule.more')}</button></p>
 {/if}
 
+{#if isAdmin}
+	<section class="admin">
+		<div class="title">
+			<h2>{t('admin.title')}</h2>
+			{#if !adding}<button class="primary" onclick={() => (adding = true)}>{t('admin.add')}</button>{/if}
+		</div>
+		{#if adding}
+			<AddSession
+				{rules}
+				from={todayIso()}
+				taken={new Set(sessions.map((e) => e.date))}
+				onadded={() => { adding = false; load(); }}
+				oncancel={() => (adding = false)}
+			/>
+		{/if}
+		<RulesEditor {rules} onchange={load} />
+	</section>
+{/if}
+
 <PastSessions />
 
 <style>
 	.title { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px; }
-	.title h1 { margin: 0; }
+	.title h2 { margin: 0; }
+	.admin { margin-top: 28px; }
 	.sessions { list-style: none; padding: 0; display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
 	.top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 	.right { display: flex; align-items: center; gap: 6px; }

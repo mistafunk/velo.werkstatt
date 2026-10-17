@@ -82,6 +82,7 @@ export default {
 	'pay.twint': 'TWINT',
 	'pay.open': 'Offen',
 	'admin.add': '+ Termin',
+	'admin.title': 'Termine verwalten',
 	'admin.addTitle': 'Neuer Termin',
 	'admin.edit': 'Bearbeiten',
 	'admin.save': 'Speichern',

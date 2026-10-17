@@ -83,6 +83,7 @@ export default {
 	'pay.twint': 'TWINT',
 	'pay.open': 'Open',
 	'admin.add': '+ Session',
+	'admin.title': 'Manage sessions',
 	'admin.addTitle': 'New session',
 	'admin.edit': 'Edit',
 	'admin.save': 'Save',
