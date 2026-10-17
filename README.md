@@ -26,7 +26,7 @@ Rules the app enforces:
 
 - Answers are Yes or No only (no Maybe, it makes planning too uncertain). A session with people but no key holder is red. See `web/src/lib/staffing.js`.
 - Volunteers can only change their own answers, name, phone and language.
-- Only admins (`is_admin`) can add people, hand out keys, make admins, deactivate people and close sessions (holidays).
+- Only admins (`is_admin`) can add people, hand out keys, make admins, deactivate people and add, move or remove sessions.
 - Sessions are created automatically every night for the next 12 weeks from the opening hours.
 
 ## Development
@@ -88,9 +88,13 @@ The importer's own tests: `python3 -m unittest discover tools`.
 
 ### Opening hours
 
-Admins edit the regular opening hours (weekday, time, valid from/until) on
-the "Opening hours" page, add single extra sessions, change the times of an
-session, close it for a holiday or delete it.
+There is no separate page: admins see an admin mode of the "Termine" list.
+They add single extra sessions ("+ Termin"), change a session's times and
+remove a session ("Termin entfernen", also in the session view). Removing
+only marks the session as removed, so the nightly job does not create it
+again; admins still see it greyed out and can restore it. The regular
+opening hours (weekday, time, valid from/until) are edited in a folded box
+at the top of the list.
 
 ## Hosting
 
