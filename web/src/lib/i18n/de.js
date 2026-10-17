@@ -5,7 +5,6 @@ export default {
 	'nav.profile': 'Mein Profil',
 	'nav.logout': 'Abmelden',
 	'hours.rules': 'Termin-Definition',
-	'hours.rulesHelp': 'Aus dieser Definition entstehen jede Nacht die Termine der nächsten 12 Wochen. Die Zeiten gelten für alle kommenden Termine am jeweiligen Wochentag. Einzelne Termine an anderen Tagen (z.B. ein Samstag) behalten die Zeiten, die beim Hinzufügen gewählt wurden.',
 	'hours.weekday': 'Wochentag',
 	'hours.start': 'Von',
 	'hours.end': 'Bis',

@@ -1,12 +1,7 @@
 /// <reference path="../pb_data/types.d.ts" />
 
-// Keep the schedule filled: every night create the sessions of the next weeks.
-cronAdd("generate_sessions", "0 3 * * *", () => {
-  const lib = require(`${__hooks}/lib.js`);
-  lib.generateSessions($app);
-});
-
-// Admins can trigger the generation right away (e.g. after changing hours).
+// There is no nightly job: sessions are created when an admin saves the
+// session definition or asks for it here.
 routerAdd("POST", "/api/velo/generate-sessions", (e) => {
   const lib = require(`${__hooks}/lib.js`);
   if (!e.auth || (!e.auth.isSuperuser() && !e.auth.getBool("is_admin"))) {

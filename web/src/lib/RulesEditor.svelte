@@ -73,7 +73,6 @@
 
 <details class="card">
 	<summary><strong>{t('hours.rules')}</strong> <span class="muted">{summary}</span></summary>
-	<p class="muted">{t('hours.rulesHelp')}</p>
 	{#if error}<p class="error">{error}</p>{/if}
 	<div class="table">
 		{#each rules as rule (rule.id)}

@@ -6,7 +6,6 @@ export default {
 	'nav.profile': 'My profile',
 	'nav.logout': 'Log out',
 	'hours.rules': 'Session definition',
-	'hours.rulesHelp': 'Every night the sessions of the next 12 weeks are created from this definition. The times apply to all upcoming sessions on that weekday. Single sessions on other days (e.g. a Saturday) keep the times chosen when they were added.',
 	'hours.weekday': 'Weekday',
 	'hours.start': 'From',
 	'hours.end': 'To',
