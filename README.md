@@ -94,8 +94,8 @@ Each card in "Nächste 2 Wochen" has a ✕ button to remove the session
 ("Termin entfernen", also in the session view). Removing
 only marks the session as removed, so creating sessions again does not bring it
 back; admins still see it greyed out and can restore it. Below the next
-two weeks, a section "Termine verwalten" adds single extra sessions
-("+ Termin") and holds the "Periodische Termine" (weekday and time) in a
+two weeks, a section "Termine verwalten" has a form to add a single
+session ("Hinzufügen") and holds the "Periodische Termine" (weekday and time) in a
 folded box. They always apply from now on: changing them retimes all
 future sessions on that weekday right away, except a session that has
 already started (Zurich time). A single session cannot be retimed. Only a

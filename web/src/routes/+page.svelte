@@ -22,7 +22,6 @@
 	let loading = $state(true);
 	let error = $state('');
 	let weeks = $state(2);
-	let adding = $state(false);
 
 	const isAdmin = $derived(!!auth.user?.is_admin);
 	const byId = $derived(new Map(volunteers.map((v) => [v.id, v])));
@@ -140,19 +139,8 @@
 
 {#if isAdmin}
 	<section class="admin">
-		<div class="title">
-			<h2>{t('admin.title')}</h2>
-			{#if !adding}<button class="primary" onclick={() => (adding = true)}>{t('admin.add')}</button>{/if}
-		</div>
-		{#if adding}
-			<AddSession
-				{rules}
-				from={todayIso()}
-				taken={new Set(sessions.map((e) => e.date))}
-				onadded={() => { adding = false; load(); }}
-				oncancel={() => (adding = false)}
-			/>
-		{/if}
+		<h2>{t('admin.title')}</h2>
+		<AddSession {rules} from={todayIso()} taken={new Set(sessions.map((e) => e.date))} onadded={load} />
 		<RulesEditor {rules} onchange={load} />
 	</section>
 {/if}
@@ -160,8 +148,6 @@
 <PastSessions />
 
 <style>
-	.title { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 12px; }
-	.title h2 { margin: 0; }
 	.admin { margin-top: 28px; }
 	.sessions { list-style: none; padding: 0; display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
 	.top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
