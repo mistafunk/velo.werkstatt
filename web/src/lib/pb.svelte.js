@@ -11,8 +11,10 @@ export const pb = new PocketBase(typeof window === 'undefined' ? 'http://127.0.0
  *   closed_reason: string, notes: string, sheet_totals?: { visitors?: number, material?: number } | null }} Session
  * @typedef {{ id: string, session: string, volunteer: string, answer: 'yes' | 'no' }} Answer
  * @typedef {{ id: string, weekday: number, start: string, end: string }} Rule
+ * @typedef {'cash' | 'twint' | 'open'} Payment
  * @typedef {{ id: string, session: string, no: number, label: string, contact: string, entry_fee: number,
- *   material: number, donation: number, payment: 'cash' | 'twint' | 'open', recorded_by: string, notes: string }} Visit
+ *   material: number, donation: number, entry_payment: Payment, material_payment: Payment,
+ *   donation_payment: 'cash' | 'twint', recorded_by: string, notes: string }} Visit
  */
 
 /** The logged in volunteer, kept in sync with the PocketBase auth store. */

@@ -2,7 +2,10 @@
 	import { pb, auth } from '#lib/pb.svelte.js';
 	import { t } from '#lib/i18n/index.svelte.js';
 
-	/** @typedef {import('./pb.svelte.js').Visit} Visit */
+	/**
+	 * @typedef {import('./pb.svelte.js').Visit} Visit
+	 * @typedef {import('./pb.svelte.js').Payment} Payment
+	 */
 
 	/** Quick list to record and edit the visits of one session. @type {{ sessionId: string }} */
 	let { sessionId } = $props();
@@ -10,14 +13,20 @@
 	/** @type {Visit[]} */
 	let visits = $state([]);
 	let error = $state('');
-	/** @type {string | null} */
+	/** The visit shown expanded; all others are collapsed to one line. @type {string | null} */
 	let openId = $state(null);
 
-	const PAYMENTS = /** @type {const} */ (['cash', 'twint', 'open']);
+	/** Each part of a visit is paid on its own; a donation is never open. */
+	const PARTS = /** @type {const} */ ([
+		{ amount: 'entry_fee', payment: 'entry_payment', label: 'visits.fee', methods: ['cash', 'twint', 'open'] },
+		{ amount: 'material', payment: 'material_payment', label: 'visits.material', methods: ['cash', 'twint', 'open'] },
+		{ amount: 'donation', payment: 'donation_payment', label: 'visits.donation', methods: ['cash', 'twint'] }
+	]);
+	/** @param {Payment} p */
+	const sum = (p) =>
+		visits.reduce((n, v) => n + PARTS.reduce((m, part) => m + (v[part.payment] === p ? v[part.amount] || 0 : 0), 0), 0);
 	/** @param {Visit} v */
-	const amount = (v) => (v.entry_fee || 0) + (v.material || 0) + (v.donation || 0);
-	/** @param {'cash' | 'twint' | 'open'} p */
-	const sum = (p) => visits.filter((v) => v.payment === p).reduce((n, v) => n + amount(v), 0);
+	const owes = (v) => (v.entry_fee > 0 && v.entry_payment === 'open') || (v.material > 0 && v.material_payment === 'open');
 
 	/** @param {unknown} err */
 	const fail = (err) => (error = t('common.error', { message: /** @type {Error} */ (err).message }));
@@ -35,9 +44,13 @@
 	async function add() {
 		try {
 			const v = /** @type {any} */ (
-				await pb.collection('visits').create({ session: sessionId, entry_fee: 5, payment: 'cash', recorded_by: auth.user?.id })
+				await pb.collection('visits').create({
+					session: sessionId, entry_fee: 5, entry_payment: 'open', material_payment: 'open', donation_payment: 'cash',
+					recorded_by: auth.user?.id
+				})
 			);
 			visits.push(v);
+			openId = v.id;
 		} catch (err) {
 			fail(err);
 		}
@@ -84,26 +97,34 @@
 	{#if error}<p class="error">{error}</p>{/if}
 	<ol class="visits">
 		{#each visits as v (v.id)}
-			<li class:owes={v.payment === 'open'}>
-				<div class="line">
-					<span class="no">{v.no}</span>
-					<label class="mini">{t('visits.fee')}<input type="number" min="0" inputmode="decimal" value={v.entry_fee} onchange={(e) => save(v, { entry_fee: +e.currentTarget.value })} /></label>
-					<label class="mini">{t('visits.material')}<input type="number" min="0" inputmode="decimal" value={v.material || ''} placeholder="0" onchange={(e) => save(v, { material: +e.currentTarget.value })} /></label>
-				</div>
-				<div class="line">
-					<div class="segmented" role="group">
-						{#each PAYMENTS as p (p)}
-							<button class={v.payment === p ? `sel-pay-${p}` : ''} aria-pressed={v.payment === p} onclick={() => save(v, { payment: p })}>{t(`pay.${p}`)}</button>
+			{@const open = openId === v.id}
+			<li class:owes={owes(v)}>
+				<button class="summary" aria-expanded={open} onclick={() => (openId = open ? null : v.id)}>
+					<span class="name">{v.label || t('visits.unnamed', { no: v.no })}</span>
+					<span class="chips">
+						{#each PARTS.slice(0, 2) as part (part.amount)}
+							{#if v[part.amount] > 0}
+								<span class="chip pay-{v[part.payment]}">{t(part.label)} {v[part.amount]} · {t(`pay.${v[part.payment]}`)}</span>
+							{/if}
 						{/each}
-					</div>
-					<span class="total">CHF {amount(v)}</span>
-					<button class="link" onclick={() => (openId = openId === v.id ? null : v.id)}>{t('visits.more')} {openId === v.id ? '▴' : '▾'}</button>
-				</div>
-				{#if v.contact || v.label}<p class="muted small">{[v.label, v.contact].filter(Boolean).join(' · ')}</p>{/if}
-				{#if openId === v.id}
-					<div class="more">
-						<label>{t('visits.donation')}<input type="number" min="0" value={v.donation || ''} placeholder="0" onchange={(e) => save(v, { donation: +e.currentTarget.value })} /></label>
-						<label>{t('visits.label')}<input value={v.label} onchange={(e) => save(v, { label: e.currentTarget.value })} /></label>
+					</span>
+					<span class="chevron" aria-hidden="true">{open ? '▴' : '▾'}</span>
+				</button>
+				{#if open}
+					<div class="details">
+						<label>{t('visits.label')}<input value={v.label} placeholder={t('visits.labelHint')} onchange={(e) => save(v, { label: e.currentTarget.value })} /></label>
+						{#each PARTS as part (part.amount)}
+							<div class="part">
+								<label>{t(part.label)}<input type="number" min="0" inputmode="decimal" value={v[part.amount] || ''} placeholder="0"
+									onchange={(e) => save(v, { [part.amount]: +e.currentTarget.value })} /></label>
+								<div class="segmented" role="group" aria-label={t(part.label)}>
+									{#each part.methods as p (p)}
+										<button class={v[part.payment] === p ? `sel-pay-${p}` : ''} aria-pressed={v[part.payment] === p}
+											onclick={() => save(v, { [part.payment]: p })}>{t(`pay.${p}`)}</button>
+									{/each}
+								</div>
+							</div>
+						{/each}
 						<label>{t('visits.contact')}<input value={v.contact} onchange={(e) => save(v, { contact: e.currentTarget.value })} /></label>
 						<label>{t('visits.notes')}<input value={v.notes} onchange={(e) => save(v, { notes: e.currentTarget.value })} /></label>
 						<p><button class="destructive" onclick={() => remove(v)}>{t('visits.delete')}</button></p>
@@ -118,16 +139,19 @@
 	section { margin-bottom: 12px; }
 	.head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 	.visits { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
-	.visits li { border: 1px solid var(--border); border-radius: 10px; padding: 8px; }
+	.visits li { border: 1px solid var(--border); border-radius: 10px; }
 	.visits li.owes { border-color: var(--amber); }
-	.line { display: flex; flex-wrap: wrap; align-items: end; gap: 8px; }
-	.line + .line { margin-top: 8px; align-items: center; }
-	.no { font-weight: 700; min-width: 1.5em; align-self: center; }
-	.mini { margin: 0; font-size: 0.8rem; font-weight: 600; color: var(--muted); flex: 1 1 70px; }
-	.mini input { width: 100%; margin-top: 2px; }
-	.total { font-weight: 600; margin-left: auto; }
-	.small { font-size: 0.85rem; margin: 6px 0 0; }
-	.more label { margin-top: 8px; }
+	.summary { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; width: 100%; text-align: left;
+		background: none; border: none; color: inherit; font-weight: 400; padding: 8px 10px; }
+	.name { font-weight: 600; flex: 1 1 auto; }
+	.chips { display: flex; flex-wrap: wrap; gap: 4px; }
+	.chip { font-size: 0.8rem; font-weight: 600; padding: 2px 8px; border-radius: 999px; color: white; white-space: nowrap; }
+	.chip.pay-cash, .chip.pay-twint { background: var(--green); }
+	.chip.pay-open { background: var(--amber); }
+	.chevron { color: var(--muted); }
+	.details { padding: 0 10px 10px; border-top: 1px solid var(--border); }
+	.details label { margin-top: 10px; }
+	.part { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: end; }
 	.segmented button.sel-pay-cash, .segmented button.sel-pay-twint { background: var(--green); color: white; }
 	.segmented button.sel-pay-open { background: var(--amber); color: white; }
 </style>

@@ -164,17 +164,20 @@ test("volunteers record visits, the recorder is set by the server", async () => 
   const other = await createVolunteer("otto");
   const ev = await api("POST", "/api/collections/sessions/records", superToken, { date: "2031-03-03", start: "17:00", end: "20:00", status: "open" });
   const visit = await api("POST", "/api/collections/visits/records", vera.token, {
-    session: ev.body.id, entry_fee: 5, material: 10, payment: "twint", contact: "079 000 00 00", recorded_by: other.id,
+    session: ev.body.id, entry_fee: 5, material: 10, entry_payment: "twint", contact: "079 000 00 00", recorded_by: other.id,
   });
   assert.equal(visit.status, 200, JSON.stringify(visit.body));
   assert.equal(visit.body.recorded_by, vera.id);
   assert.equal(visit.body.no, 1);
+  assert.deepEqual([visit.body.entry_payment, visit.body.material_payment, visit.body.donation_payment], ["twint", "open", "cash"]);
   assert.equal(visit.body.created, undefined, "no timestamps on visits");
-  const second = await api("POST", "/api/collections/visits/records", other.token, { session: ev.body.id, entry_fee: 5, payment: "cash" });
+  const second = await api("POST", "/api/collections/visits/records", other.token, { session: ev.body.id, entry_fee: 5 });
   assert.equal(second.body.no, 2);
-  const paid = await api("PATCH", `/api/collections/visits/records/${visit.body.id}`, other.token, { payment: "cash" });
+  const paid = await api("PATCH", `/api/collections/visits/records/${visit.body.id}`, other.token, { material_payment: "cash" });
   assert.equal(paid.status, 200);
-  const negative = await api("POST", "/api/collections/visits/records", vera.token, { session: ev.body.id, entry_fee: -5, payment: "cash" });
+  const openDonation = await api("PATCH", `/api/collections/visits/records/${visit.body.id}`, other.token, { donation_payment: "open" });
+  assert.equal(openDonation.status, 400, "a donation is never open");
+  const negative = await api("POST", "/api/collections/visits/records", vera.token, { session: ev.body.id, entry_fee: -5 });
   assert.equal(negative.status, 400);
   assert.equal((await api("GET", "/api/collections/visits/records", null)).body.totalItems, 0, "guests see no visits");
 });
