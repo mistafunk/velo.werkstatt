@@ -25,7 +25,7 @@
 	async function load() {
 		try {
 			visits = /** @type {any} */ (
-				await pb.collection('visits').getFullList({ filter: pb.filter('session = {:id}', { id: sessionId }), sort: 'created' })
+				await pb.collection('visits').getFullList({ filter: pb.filter('session = {:id}', { id: sessionId }), sort: 'no' })
 			);
 		} catch (err) {
 			fail(err);
@@ -33,10 +33,9 @@
 	}
 
 	async function add() {
-		const arrived = new Date().toLocaleTimeString('de-CH', { timeZone: 'Europe/Zurich', hour: '2-digit', minute: '2-digit' });
 		try {
 			const v = /** @type {any} */ (
-				await pb.collection('visits').create({ session: sessionId, arrived, entry_fee: 5, payment: 'cash', recorded_by: auth.user?.id })
+				await pb.collection('visits').create({ session: sessionId, entry_fee: 5, payment: 'cash', recorded_by: auth.user?.id })
 			);
 			visits.push(v);
 		} catch (err) {
@@ -84,11 +83,10 @@
 	</p>
 	{#if error}<p class="error">{error}</p>{/if}
 	<ol class="visits">
-		{#each visits as v, i (v.id)}
+		{#each visits as v (v.id)}
 			<li class:owes={v.payment === 'open'}>
 				<div class="line">
-					<span class="no">{i + 1}</span>
-					<label class="mini">{t('visits.arrived')}<input type="time" value={v.arrived} onchange={(e) => save(v, { arrived: e.currentTarget.value })} /></label>
+					<span class="no">{v.no}</span>
 					<label class="mini">{t('visits.fee')}<input type="number" min="0" inputmode="decimal" value={v.entry_fee} onchange={(e) => save(v, { entry_fee: +e.currentTarget.value })} /></label>
 					<label class="mini">{t('visits.material')}<input type="number" min="0" inputmode="decimal" value={v.material || ''} placeholder="0" onchange={(e) => save(v, { material: +e.currentTarget.value })} /></label>
 				</div>

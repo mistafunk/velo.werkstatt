@@ -91,7 +91,6 @@ export default {
 	'visits.add': '+ Record visit',
 	'visits.none': 'No visits recorded yet.',
 	'visits.summary': '{n} visits · cash CHF {cash} · TWINT CHF {twint} · open CHF {open}',
-	'visits.arrived': 'Time',
 	'visits.fee': 'Entry',
 	'visits.material': 'Material',
 	'visits.donation': 'Donation',

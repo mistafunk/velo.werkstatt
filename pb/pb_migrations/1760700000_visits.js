@@ -2,6 +2,8 @@
 
 // Visitor log: one row per visit during a session. Visitors stay anonymous;
 // label and contact are optional, e.g. for open debts or a bike left behind.
+// On purpose no time is stored (no arrival, no duration, no timestamps):
+// "no" only keeps the visits of a session in the order they were recorded.
 migrate((app) => {
   const users = app.findCollectionByNameOrId("users");
   const sessions = app.findCollectionByNameOrId("sessions");
@@ -17,7 +19,7 @@ migrate((app) => {
     deleteRule: authed,
     fields: [
       { type: "relation", name: "session", collectionId: sessions.id, maxSelect: 1, required: true, cascadeDelete: true },
-      { type: "text", name: "arrived", pattern: "^(\\d{2}:\\d{2})?$" },
+      { type: "number", name: "no", onlyInt: true, min: 1 },
       { type: "text", name: "label" },
       { type: "text", name: "contact" },
       money("entry_fee"),
@@ -26,8 +28,6 @@ migrate((app) => {
       { type: "select", name: "payment", values: ["cash", "twint", "open"], maxSelect: 1, required: true },
       { type: "relation", name: "recorded_by", collectionId: users.id, maxSelect: 1 },
       { type: "text", name: "notes" },
-      { type: "autodate", name: "created", onCreate: true },
-      { type: "autodate", name: "updated", onCreate: true, onUpdate: true },
     ],
     indexes: ["CREATE INDEX idx_visits_session ON visits (session)"],
   });

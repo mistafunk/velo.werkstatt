@@ -90,7 +90,6 @@ export default {
 	'visits.add': '+ Besuch erfassen',
 	'visits.none': 'Noch keine Besuche erfasst.',
 	'visits.summary': '{n} Besuche · Bar CHF {cash} · TWINT CHF {twint} · offen CHF {open}',
-	'visits.arrived': 'Zeit',
 	'visits.fee': 'Eintritt',
 	'visits.material': 'Material',
 	'visits.donation': 'Spende',

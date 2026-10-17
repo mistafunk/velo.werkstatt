@@ -10,7 +10,7 @@ export const pb = new PocketBase(typeof window === 'undefined' ? 'http://127.0.0
  * @typedef {{ id: string, date: string, start: string, end: string, status: 'open' | 'closed',
  *   closed_reason: string, lead: string, notes: string }} Session
  * @typedef {{ id: string, session: string, volunteer: string, answer: 'yes' | 'no' }} Answer
- * @typedef {{ id: string, session: string, arrived: string, label: string, contact: string, entry_fee: number,
+ * @typedef {{ id: string, session: string, no: number, label: string, contact: string, entry_fee: number,
  *   material: number, donation: number, payment: 'cash' | 'twint' | 'open', recorded_by: string, notes: string }} Visit
  */
 
