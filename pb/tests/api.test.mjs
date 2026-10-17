@@ -97,8 +97,8 @@ test("only admins hand out keys and close sessions", async () => {
   assert.equal(adminKey.body.has_key, true);
 
   const ev = (await api("GET", "/api/collections/sessions/records?sort=date&perPage=1", carla.token)).body.items[0];
-  const lead = await api("PATCH", `/api/collections/sessions/records/${ev.id}`, carla.token, { lead: carla.id });
-  assert.equal(lead.status, 200);
+  const notes = await api("PATCH", `/api/collections/sessions/records/${ev.id}`, carla.token, { notes: "Pumpe defekt" });
+  assert.equal(notes.status, 200);
   const close = await api("PATCH", `/api/collections/sessions/records/${ev.id}`, carla.token, { status: "closed" });
   assert.equal(close.status, 403);
   const adminClose = await api("PATCH", `/api/collections/sessions/records/${ev.id}`, boss.token, { status: "closed", closed_reason: "Feiertag" });

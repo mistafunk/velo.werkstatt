@@ -54,7 +54,7 @@ migrate((app) => {
     listRule: authed,
     viewRule: authed,
     createRule: admin,
-    // Any volunteer can set the lead and notes; closing is admin only (hook).
+    // Any volunteer can edit the notes; closing is admin only (hook).
     updateRule: authed,
     deleteRule: admin,
     fields: [
@@ -64,7 +64,6 @@ migrate((app) => {
       { type: "text", name: "end", required: true, pattern: "^\\d{2}:\\d{2}$" },
       { type: "select", name: "status", values: ["open", "closed"], maxSelect: 1, required: true },
       { type: "text", name: "closed_reason" },
-      { type: "relation", name: "lead", collectionId: users.id, maxSelect: 1 },
       { type: "text", name: "notes" },
       { type: "autodate", name: "created", onCreate: true },
       { type: "autodate", name: "updated", onCreate: true, onUpdate: true },

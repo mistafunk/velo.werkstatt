@@ -16,8 +16,8 @@ routerAdd("POST", "/api/velo/generate-sessions", (e) => {
   return e.json(200, { created });
 }, $apis.requireAuth());
 
-// Volunteers may set the lead and notes, but only admins may close an
-// session or move it.
+// Volunteers may edit the notes, but only admins may close a session or
+// move it.
 onRecordUpdateRequest((e) => {
   if (!e.hasSuperuserAuth() && !e.auth.getBool("is_admin")) {
     const original = e.record.original();

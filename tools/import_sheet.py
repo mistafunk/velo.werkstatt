@@ -19,15 +19,15 @@ With --reset, all volunteers, sessions and answers are deleted first.
 How the sheet is read:
 - Row 2 holds the column titles. Volunteer columns are the named columns
   between the date (and the 🔑 / 🧑‍🔧 status columns) and the first money or
-  shift lead column ("ScheffIn", "Scheff", "Total", "Bargeld").
+  shift lead or money column ("ScheffIn", "Scheff", "Total", "Bargeld").
 - "Name (Reserve)" becomes "Name"; the same name in different years is
   the same volunteer.
 - Yep becomes yes; (Ev) and Nope become no (the app has no maybe).
 - Tabs with a 🔑 column: a session without a key status is closed, and its
   remark becomes the reason.
-- "ScheffIn" becomes the session's lead, "Bemerkungen" its notes, and the
-  money and visitor columns are kept per session in `sheet_totals` for the
-  statistics.
+- The app has no shift lead, so "ScheffIn" is ignored. "Bemerkungen" becomes
+  the session's notes, and the money and visitor columns are kept per session
+  in `sheet_totals` for the statistics.
 - When tabs overlap (e.g. 1 Jan 2026 in the 2025 tab), the later tab wins.
 - Key holders: the names given with --key-holders, otherwise the yellow name
   headers of the latest tab.
@@ -89,7 +89,6 @@ def parse_tab(ws):
         return None
 
     key_col = find("🔑")
-    lead_col = find("scheff")
     remark_col = find("bemerk")
     end = min(col for col, title in lower.items() if title.startswith(END_OF_VOLUNTEERS))
     volunteers = {
@@ -117,7 +116,6 @@ def parse_tab(ws):
             "date": date.date(),
             "closed": closed,
             "remark": remark,
-            "lead": clean_name(cell(lead_col) or "").lower(),
             "answers": answers,
             "totals": totals,
         })
@@ -274,7 +272,6 @@ def main():
             "status": "closed" if e["closed"] else "open",
             "closed_reason": (e["remark"] or "geschlossen") if e["closed"] else "",
             "notes": "" if e["closed"] else e["remark"],
-            "lead": volunteer_ids.get(e["lead"], ""),
             "sheet_totals": e["totals"] or None,
         }
         session_id = api.write("sessions", existing_sessions.get(date.isoformat()), data)["id"]

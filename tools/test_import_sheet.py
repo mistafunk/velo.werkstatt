@@ -40,7 +40,7 @@ class ParseTab(unittest.TestCase):
         self.assertEqual(len(sessions), 2)
         first, holiday = sessions
         self.assertEqual(first["answers"], {"Volunteer A": "yes", "Volunteer B": "no", "Volunteer C": "no"})
-        self.assertEqual(first["lead"], "volunteer a")
+        self.assertNotIn("lead", first)
         self.assertEqual(first["totals"], {"total": 78, "twint": 35, "material": 43, "visitors": 7})
         self.assertEqual(first["remark"], "Pedale offen")
         self.assertFalse(first["closed"])
