@@ -81,4 +81,79 @@ function generateSessions(app, weeks, now) {
   return { created, updated };
 }
 
-module.exports = { generateSessions, weekdayOf, isoDate, zurichNow, hasStarted };
+// A session lacks volunteers unless at least two come and one of them has a
+// key (the same rule as the red and amber badges in the app).
+function lacksVolunteers(yes, hasKey) {
+  return yes < 2 || !hasKey;
+}
+
+// The reminder emails due on `today` (Zurich date, "YYYY-MM-DD"):
+// - "signed_up": the day before a session, to everyone who said Yes and
+//   wants this reminder;
+// - "understaffed": a week before a session that lacks volunteers, to
+//   everyone who wants this reminder and has not said Yes yet.
+// Returns [{ kind, session, volunteer }] with records.
+function dueReminders(app, today) {
+  const day = (n) => isoDate(new Date(new Date(today + "T00:00:00Z").getTime() + n * 86400000));
+  const people = app.findRecordsByFilter("users", "active = true", "name", 0, 0);
+  const due = [];
+  for (const [kind, offset] of [["signed_up", 1], ["understaffed", 7]]) {
+    const sessions = app.findRecordsByFilter("sessions", "date = {:date} && status = 'open'", "", 0, 0, { date: day(offset) });
+    for (const session of sessions) {
+      const yes = app.findRecordsByFilter("availability", "session = {:id} && answer = 'yes'", "", 0, 0, { id: session.id })
+        .map((a) => a.getString("volunteer"));
+      const coming = people.filter((v) => yes.includes(v.id));
+      if (kind === "signed_up") {
+        for (const v of coming) if (v.getBool("notify_signed_up")) due.push({ kind, session, volunteer: v });
+      } else if (lacksVolunteers(coming.length, coming.some((v) => v.getBool("has_key")))) {
+        for (const v of people) if (v.getBool("notify_understaffed") && !yes.includes(v.id)) due.push({ kind, session, volunteer: v });
+      }
+    }
+  }
+  return due;
+}
+
+const REMINDER_TEXTS = {
+  de: {
+    signed_up: ["Erinnerung: morgen in der Velowerkstatt", "Du hast dich für morgen eingetragen: {date}, {start}–{end}. Danke!"],
+    understaffed: ["Freiwillige gesucht: {date}", "Für den Termin am {date}, {start}–{end}, haben sich noch zu wenige Freiwillige eingetragen. Kannst du kommen?"],
+    open: "Termin öffnen",
+    footer: "Du bekommst diese E-Mail, weil du sie in deinem Profil eingeschaltet hast.",
+  },
+  en: {
+    signed_up: ["Reminder: workshop tomorrow", "You signed up for tomorrow: {date}, {start}–{end}. Thank you!"],
+    understaffed: ["Volunteers needed: {date}", "The session on {date}, {start}–{end}, does not have enough volunteers yet. Can you come?"],
+    open: "Open the session",
+    footer: "You get this email because you switched it on in your profile.",
+  },
+};
+
+// Sends the reminders due today and returns how many were sent.
+function sendReminders(app, now) {
+  const meta = app.settings().meta;
+  let sent = 0;
+  for (const r of dueReminders(app, zurichNow(now).date)) {
+    const lang = r.volunteer.getString("lang") === "en" ? "en" : "de";
+    const texts = REMINDER_TEXTS[lang];
+    const fill = (text) => text
+      .replace("{date}", r.session.getString("date").split("-").reverse().join("."))
+      .replace("{start}", r.session.getString("start"))
+      .replace("{end}", r.session.getString("end"));
+    const [subject, body] = texts[r.kind];
+    const link = `${meta.appURL}/session/${r.session.id}`;
+    try {
+      app.newMailClient().send(new MailerMessage({
+        from: { address: meta.senderAddress, name: meta.senderName },
+        to: [{ address: r.volunteer.email() }],
+        subject: fill(subject),
+        html: `<p>${fill(body)}</p><p><a href="${link}">${texts.open}</a></p><p style="color:#777">${texts.footer}</p>`,
+      }));
+      sent++;
+    } catch (err) {
+      app.logger().error("Reminder email failed", "volunteer", r.volunteer.id, "error", String(err));
+    }
+  }
+  return sent;
+}
+
+module.exports = { generateSessions, weekdayOf, isoDate, zurichNow, hasStarted, lacksVolunteers, dueReminders, sendReminders };

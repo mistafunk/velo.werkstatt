@@ -212,3 +212,24 @@ test("volunteers upload their own avatar, raster images only", async () => {
   assert.equal(removed.status, 200);
   assert.equal(removed.body.avatar, "");
 });
+
+test("reminders go to opted-in volunteers the day before and a week before an understaffed session", async () => {
+  const keen = await createVolunteer("reminder-a", { notify_signed_up: true, notify_understaffed: true, has_key: true });
+  const quiet = await createVolunteer("reminder-b");
+  // A generated Monday a few weeks ahead.
+  const list = await api("GET", "/api/collections/sessions/records?perPage=60&sort=date", superToken);
+  const monday = list.body.items.filter((s) => new Date(s.date + "T00:00:00Z").getUTCDay() === 1)[2];
+  const day = (iso, n) => new Date(Date.parse(iso + "T00:00:00Z") + n * 86400000).toISOString().slice(0, 10);
+  const due = async (today) => (await api("GET", `/api/velo/reminders?today=${today}`, superToken)).body
+    .filter((r) => r.session === monday.id && [keen.id, quiet.id].includes(r.volunteer));
+
+  // A week before: nobody comes yet, so the opted-in volunteer gets asked; the other did not opt in.
+  assert.deepEqual(await due(day(monday.date, -7)), [{ kind: "understaffed", session: monday.id, date: monday.date, volunteer: keen.id }]);
+  // Once they said Yes they are not asked again, but reminded the day before.
+  await api("POST", "/api/collections/availability/records", keen.token, { session: monday.id, volunteer: keen.id, answer: "yes" });
+  await api("POST", "/api/collections/availability/records", quiet.token, { session: monday.id, volunteer: quiet.id, answer: "yes" });
+  assert.deepEqual(await due(day(monday.date, -7)), []);
+  assert.deepEqual(await due(day(monday.date, -1)), [{ kind: "signed_up", session: monday.id, date: monday.date, volunteer: keen.id }]);
+  // Volunteers cannot list the reminders.
+  assert.equal((await api("GET", "/api/velo/reminders", keen.token)).status, 403);
+});

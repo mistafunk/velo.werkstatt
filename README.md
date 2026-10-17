@@ -27,7 +27,8 @@ Rules the app enforces:
 - Answers are Yes or No only (no Maybe, it makes planning too uncertain). A session with people but no key holder is red. See `web/src/lib/staffing.js`.
 - Volunteers can only change their own answers, name, phone, language, key flag and optional avatar picture (JPG, PNG or WebP, at most 2 MB).
 - Only admins (`is_admin`) can add people, make admins, deactivate people and add, move or remove sessions. Everybody sets their own "has key" flag (admins can set it for anyone).
-- Sessions for the next year (52 weeks) are created from the "Periodische Termine" whenever an admin saves them. There is no nightly job.
+- Sessions for the next year (52 weeks) are created from the "Periodische Termine" whenever an admin saves them. No job creates sessions in the background.
+- Email reminders, each switched on per volunteer in their profile: one day before a session they signed up for, and one week before a session that lacks volunteers (fewer than 2, or no key holder) if they have not said Yes. A daily job sends them at 06:00 UTC; it needs SMTP. Admins can check what a day would send at `GET /api/velo/reminders?today=YYYY-MM-DD`.
 - The Termine list shows the next 2 weeks, then past sessions with their number of visitors and material revenue (from the visits recorded in the app, or from the imported sheet totals for older sessions).
 
 ## Development

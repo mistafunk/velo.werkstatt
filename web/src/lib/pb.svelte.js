@@ -6,7 +6,8 @@ export const pb = new PocketBase(typeof window === 'undefined' ? 'http://127.0.0
 
 /**
  * @typedef {{ id: string, name: string, email: string, phone: string, has_key: boolean,
- *   is_admin: boolean, active: boolean, lang: '' | 'de' | 'en', avatar: string, collectionId: string }} Volunteer
+ *   is_admin: boolean, active: boolean, lang: '' | 'de' | 'en', avatar: string, collectionId: string,
+ *   notify_signed_up: boolean, notify_understaffed: boolean }} Volunteer
  * @typedef {{ id: string, date: string, start: string, end: string, status: 'open' | 'closed',
  *   closed_reason: string, notes: string, sheet_totals?: { visitors?: number, material?: number } | null }} Session
  * @typedef {{ id: string, session: string, volunteer: string, answer: 'yes' | 'no' }} Answer

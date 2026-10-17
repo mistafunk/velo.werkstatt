@@ -11,7 +11,7 @@
 	const isSelf = $derived(page.params.id === auth.user?.id);
 	const canEdit = $derived(isAdmin || isSelf);
 
-	let form = $state({ name: '', email: '', phone: '', lang: 'de', has_key: false, is_admin: false, active: true });
+	let form = $state({ name: '', email: '', phone: '', lang: 'de', has_key: false, is_admin: false, active: true, notify_signed_up: false, notify_understaffed: false });
 	let error = $state('');
 	let message = $state('');
 	/** The stored record, for the avatar. @type {{ id: string, collectionId: string, name: string, avatar: string } | null} */
@@ -23,7 +23,7 @@
 		error = '';
 		record = null;
 		if (id === 'new') {
-			form = { name: '', email: '', phone: '', lang: 'de', has_key: false, is_admin: false, active: true };
+			form = { name: '', email: '', phone: '', lang: 'de', has_key: false, is_admin: false, active: true, notify_signed_up: false, notify_understaffed: false };
 			return;
 		}
 		pb.collection('users')
@@ -32,7 +32,8 @@
 				record = { id: v.id, collectionId: v.collectionId, name: v.name, avatar: v.avatar };
 				form = {
 					name: v.name, email: v.email, phone: v.phone, lang: v.lang || 'de',
-					has_key: v.has_key, is_admin: v.is_admin, active: v.active
+					has_key: v.has_key, is_admin: v.is_admin, active: v.active,
+					notify_signed_up: v.notify_signed_up, notify_understaffed: v.notify_understaffed
 				};
 			})
 			.catch((err) => (error = t('common.error', { message: err.message })));
@@ -59,7 +60,10 @@
 		error = '';
 		message = '';
 		/** @type {Record<string, unknown>} */
-		const data = { name: form.name, phone: form.phone, lang: form.lang, has_key: form.has_key };
+		const data = {
+			name: form.name, phone: form.phone, lang: form.lang, has_key: form.has_key,
+			notify_signed_up: form.notify_signed_up, notify_understaffed: form.notify_understaffed
+		};
 		if (isAdmin) Object.assign(data, { email: form.email, is_admin: form.is_admin, active: form.active });
 		try {
 			if (isNew) {
@@ -124,7 +128,14 @@
 		<label class="check"><input type="checkbox" bind:checked={form.active} />{t('volunteer.active')}</label>
 	{/if}
 
-	{#if canEdit}<p><button>{t('volunteer.save')}</button></p>{/if}
+	{#if canEdit}
+		<fieldset>
+			<legend>{t('volunteer.notifications')}</legend>
+			<label class="check"><input type="checkbox" bind:checked={form.notify_signed_up} />{t('volunteer.notifySignedUp')}</label>
+			<label class="check"><input type="checkbox" bind:checked={form.notify_understaffed} />{t('volunteer.notifyUnderstaffed')}</label>
+		</fieldset>
+		<p><button>{t('volunteer.save')}</button></p>
+	{/if}
 	{#if message}<p class="ok">{message}</p>{/if}
 </form>
 
@@ -134,4 +145,6 @@
 	.upload { margin: 0; cursor: pointer; }
 	.upload input { display: none; }
 	.hint { flex-basis: 100%; font-size: 0.8rem; }
+	fieldset { border: none; border-top: 1px solid var(--border); margin: 16px 0 0; padding: 8px 0 0; }
+	legend { font-weight: 600; padding: 0 6px 0 0; }
 </style>
