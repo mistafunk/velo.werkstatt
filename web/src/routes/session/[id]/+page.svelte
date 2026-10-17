@@ -17,15 +17,12 @@
 	let volunteers = $state([]);
 	let error = $state('');
 	let saved = $state(false);
-	let reason = $state('');
 
-	const isAdmin = $derived(!!auth.user?.is_admin);
 	const byId = $derived(new Map(volunteers.map((v) => [v.id, v])));
 	const s = $derived(session ? staffing(session, answers, byId) : null);
 	/** @param {string} answer */
 	const who = (answer) =>
 		answers.filter((a) => a.answer === answer).map((a) => byId.get(a.volunteer)).filter((v) => v !== undefined);
-	const unanswered = $derived(volunteers.filter((v) => v.active && !answers.some((a) => a.volunteer === v.id)));
 	const myAnswer = $derived(answers.find((a) => a.volunteer === auth.user?.id)?.answer);
 
 	/** @param {unknown} err */
@@ -92,54 +89,27 @@
 		<VisitList sessionId={session.id} />
 	{/if}
 
-	<div class="grid">
-		{#each [['yes', 'session.coming'], ['no', 'session.notComing']] as [key, label] (key)}
-			<div class="card">
-				<strong>{t(/** @type {any} */ (label))}</strong>
-				<ul>
-					{#each who(key) as v (v.id)}<li>{v.name}{v.has_key ? ' 🔑' : ''}</li>{/each}
-				</ul>
-			</div>
-		{/each}
-		<div class="card">
-			<strong>{t('session.noAnswer')}</strong>
+	<section class="card">
+		<strong>{t('session.volunteers')}</strong>
+		{#if who('yes').length}
 			<ul>
-				{#each unanswered as v (v.id)}<li>{v.name}{v.has_key ? ' 🔑' : ''}</li>{/each}
+				{#each who('yes') as v (v.id)}<li>{v.name}{v.has_key ? ' 🔑' : ''}</li>{/each}
 			</ul>
-		</div>
-	</div>
+		{:else}
+			<p class="muted">{t('schedule.nobody')}</p>
+		{/if}
+	</section>
 
 	<div class="card">
-		<label for="lead">{t('session.lead')}</label>
-		<select id="lead" value={session.lead} onchange={(e) => update({ lead: e.currentTarget.value })}>
-			<option value="">{t('session.noLead')}</option>
-			{#each who('yes') as v (v.id)}<option value={v.id}>{v.name}</option>{/each}
-			{#if session.lead && !who('yes').some((v) => v.id === session?.lead)}
-				<option value={session.lead}>{byId.get(session.lead)?.name}</option>
-			{/if}
-		</select>
 		<label for="notes">{t('session.notes')}</label>
 		<textarea id="notes" rows="3" value={session.notes} onchange={(e) => update({ notes: e.currentTarget.value })}
 		></textarea>
 		{#if saved}<p class="ok">{t('session.saved')}</p>{/if}
 	</div>
-
-	{#if isAdmin}
-		<div class="card">
-			{#if session.status === 'open'}
-				<label for="reason">{t('session.closedReason')}</label>
-				<input id="reason" bind:value={reason} />
-				<p><button onclick={() => update({ status: 'closed', closed_reason: reason })}>{t('session.close')}</button></p>
-			{:else}
-				<button onclick={() => update({ status: 'open', closed_reason: '' })}>{t('session.reopen')}</button>
-			{/if}
-		</div>
-	{/if}
 {/if}
 
 <style>
 	.badges { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
-	.grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); margin: 12px 0; }
 	.card { margin-bottom: 12px; }
 	ul { margin: 8px 0 0; padding-left: 20px; }
 </style>

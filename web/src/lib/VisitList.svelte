@@ -115,6 +115,7 @@
 </section>
 
 <style>
+	section { margin-bottom: 12px; }
 	.head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 	.visits { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
 	.visits li { border: 1px solid var(--border); border-radius: 10px; padding: 8px; }
