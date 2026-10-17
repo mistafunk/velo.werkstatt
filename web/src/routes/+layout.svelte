@@ -43,7 +43,7 @@
 
 {#if auth.user}
 	<nav>
-		<a href={resolve('/')} class:current={page.url.pathname === resolve('/') || page.url.pathname.startsWith(resolve('/session'))}
+		<a href={resolve('/')} class:current={page.url.pathname === resolve('/') || page.route.id === '/session/[id]'}
 			>{t('nav.schedule')}</a
 		>
 		<a href={resolve('/volunteers')} class:current={page.url.pathname === resolve('/volunteers')}
