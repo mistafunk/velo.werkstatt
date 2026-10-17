@@ -1,7 +1,7 @@
 /// <reference path="../pb_data/types.d.ts" />
 
 // Schema for phase 1: volunteers (the built-in users collection),
-// opening rules, evenings and availability answers.
+// opening rules, openings and availability answers.
 migrate((app) => {
   const authed = "@request.auth.id != ''";
   const admin = "@request.auth.is_admin = true";
@@ -47,10 +47,10 @@ migrate((app) => {
   });
   app.save(rules);
 
-  // --- evenings ----------------------------------------------------------
-  const evenings = new Collection({
+  // --- openings ----------------------------------------------------------
+  const openings = new Collection({
     type: "base",
-    name: "evenings",
+    name: "openings",
     listRule: authed,
     viewRule: authed,
     createRule: admin,
@@ -69,9 +69,9 @@ migrate((app) => {
       { type: "autodate", name: "created", onCreate: true },
       { type: "autodate", name: "updated", onCreate: true, onUpdate: true },
     ],
-    indexes: ["CREATE UNIQUE INDEX idx_evenings_date ON evenings (date)"],
+    indexes: ["CREATE UNIQUE INDEX idx_openings_date ON openings (date)"],
   });
-  app.save(evenings);
+  app.save(openings);
 
   // --- availability ------------------------------------------------------
   const own = "(volunteer = @request.auth.id || " + admin + ")";
@@ -84,12 +84,12 @@ migrate((app) => {
     updateRule: own + " && (@request.body.volunteer:isset = false || @request.body.volunteer = volunteer)",
     deleteRule: own,
     fields: [
-      { type: "relation", name: "evening", collectionId: evenings.id, maxSelect: 1, required: true, cascadeDelete: true },
+      { type: "relation", name: "opening", collectionId: openings.id, maxSelect: 1, required: true, cascadeDelete: true },
       { type: "relation", name: "volunteer", collectionId: users.id, maxSelect: 1, required: true, cascadeDelete: true },
       { type: "select", name: "answer", values: ["yes", "maybe", "no"], maxSelect: 1, required: true },
       { type: "autodate", name: "updated", onCreate: true, onUpdate: true },
     ],
-    indexes: ["CREATE UNIQUE INDEX idx_availability_pair ON availability (evening, volunteer)"],
+    indexes: ["CREATE UNIQUE INDEX idx_availability_pair ON availability (opening, volunteer)"],
   });
   app.save(availability);
 
@@ -102,7 +102,7 @@ migrate((app) => {
     app.save(r);
   }
 }, (app) => {
-  for (const name of ["availability", "evenings", "opening_rules"]) {
+  for (const name of ["availability", "openings", "opening_rules"]) {
     app.delete(app.findCollectionByNameOrId(name));
   }
   const users = app.findCollectionByNameOrId("users");

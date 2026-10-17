@@ -35,10 +35,10 @@ class ParseTab(unittest.TestCase):
             ],
             yellow={"Volunteer A", "Volunteer B (Reserve)"},
         )
-        volunteers, evenings = parse_tab(ws)
+        volunteers, openings = parse_tab(ws)
         self.assertEqual(volunteers, [("Volunteer A", True), ("Volunteer B", True), ("Volunteer C", False)])
-        self.assertEqual(len(evenings), 2)
-        first, holiday = evenings
+        self.assertEqual(len(openings), 2)
+        first, holiday = openings
         self.assertEqual(first["answers"], {"Volunteer A": "yes", "Volunteer B": "maybe", "Volunteer C": "no"})
         self.assertEqual(first["lead"], "volunteer a")
         self.assertEqual(first["totals"], {"total": 78, "twint": 35, "material": 43, "visitors": 7})
@@ -52,11 +52,11 @@ class ParseTab(unittest.TestCase):
             ["Datum", "Volunteer A", "Volunteer B", "Bargeld 5.-", "Anzahl Besucher", "Besucher"],
             [[dt.datetime(2022, 3, 28), "Yep", "Nope", 25, 8, 65]],
         )
-        volunteers, evenings = parse_tab(ws)
+        volunteers, openings = parse_tab(ws)
         self.assertEqual([n for n, _ in volunteers], ["Volunteer A", "Volunteer B"])
-        self.assertEqual(evenings[0]["answers"], {"Volunteer A": "yes", "Volunteer B": "no"})
-        self.assertEqual(evenings[0]["totals"], {"cash": 25, "visitors": 8})
-        self.assertFalse(evenings[0]["closed"])
+        self.assertEqual(openings[0]["answers"], {"Volunteer A": "yes", "Volunteer B": "no"})
+        self.assertEqual(openings[0]["totals"], {"cash": 25, "visitors": 8})
+        self.assertFalse(openings[0]["closed"])
 
 
 if __name__ == "__main__":

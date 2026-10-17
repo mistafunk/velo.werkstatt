@@ -7,8 +7,8 @@
 
 	/** @type {Rule[]} */
 	let rules = $state([]);
-	/** @type {import('#lib/pb.svelte.js').Evening[]} */
-	let evenings = $state([]);
+	/** @type {import('#lib/pb.svelte.js').Opening[]} */
+	let openings = $state([]);
 	/** @type {Record<string, number>} */
 	let answerCounts = $state({});
 	let error = $state('');
@@ -31,14 +31,14 @@
 			const from = todayIso();
 			const [r, e, a] = await Promise.all([
 				pb.collection('opening_rules').getFullList({ sort: 'weekday,start' }),
-				pb.collection('evenings').getList(1, 40, { filter: pb.filter('date >= {:from}', { from }), sort: 'date' }),
-				pb.collection('availability').getFullList({ filter: pb.filter('evening.date >= {:from}', { from }), fields: 'evening' })
+				pb.collection('openings').getList(1, 40, { filter: pb.filter('date >= {:from}', { from }), sort: 'date' }),
+				pb.collection('availability').getFullList({ filter: pb.filter('opening.date >= {:from}', { from }), fields: 'opening' })
 			]);
 			rules = /** @type {any} */ (r);
-			evenings = /** @type {any} */ (e.items);
+			openings = /** @type {any} */ (e.items);
 			/** @type {Record<string, number>} */
 			const counts = {};
-			for (const x of a) counts[x.evening] = (counts[x.evening] ?? 0) + 1;
+			for (const x of a) counts[x.opening] = (counts[x.opening] ?? 0) + 1;
 			answerCounts = counts;
 		} catch (err) {
 			fail(err);
@@ -82,29 +82,29 @@
 	}
 
 	/** @param {SubmitEvent} e */
-	function addEvening(e) {
+	function addOpening(e) {
 		e.preventDefault();
-		run(() => pb.collection('evenings').create({ ...extra, status: 'open' }));
+		run(() => pb.collection('openings').create({ ...extra, status: 'open' }));
 	}
 
 	function generate() {
 		run(async () => {
-			const res = await pb.send('/api/velo/generate-evenings', { method: 'POST' });
+			const res = await pb.send('/api/velo/generate-openings', { method: 'POST' });
 			return t('hours.generated', { n: res.created });
 		});
 	}
 
-	/** @param {import('#lib/pb.svelte.js').Evening} evening */
-	function deleteEvening(evening) {
-		if (!confirm(t('hours.confirmDelete', { date: formatDate(evening.date) }))) return;
-		run(() => pb.collection('evenings').delete(evening.id));
+	/** @param {import('#lib/pb.svelte.js').Opening} opening */
+	function deleteOpening(opening) {
+		if (!confirm(t('hours.confirmDelete', { date: formatDate(opening.date) }))) return;
+		run(() => pb.collection('openings').delete(opening.id));
 	}
 
 	/**
-	 * @param {import('#lib/pb.svelte.js').Evening} evening
+	 * @param {import('#lib/pb.svelte.js').Opening} opening
 	 * @param {Record<string, unknown>} changes
 	 */
-	const updateEvening = (evening, changes) => run(() => pb.collection('evenings').update(evening.id, changes));
+	const updateOpening = (opening, changes) => run(() => pb.collection('openings').update(opening.id, changes));
 
 	onMount(load);
 </script>
@@ -154,7 +154,7 @@
 
 	<section class="card">
 		<h2>{t('hours.extra')}</h2>
-		<form class="inline" onsubmit={addEvening}>
+		<form class="inline" onsubmit={addOpening}>
 			<label>{t('hours.date')}<input type="date" required bind:value={extra.date} /></label>
 			<label>{t('hours.start')}<input type="time" required bind:value={extra.start} /></label>
 			<label>{t('hours.end')}<input type="time" required bind:value={extra.end} /></label>
@@ -165,27 +165,27 @@
 	<section class="card">
 		<h2>{t('hours.upcoming')}</h2>
 		<p class="muted">{t('hours.upcomingHelp')}</p>
-		<ul class="evenings">
-			{#each evenings as evening (evening.id)}
-				<li class:closed={evening.status === 'closed'}>
-					<strong>{formatDate(evening.date)}</strong>
-					<input aria-label={t('hours.start')} type="time" value={evening.start}
-						onchange={(e) => updateEvening(evening, { start: e.currentTarget.value })} />
-					<input aria-label={t('hours.end')} type="time" value={evening.end}
-						onchange={(e) => updateEvening(evening, { end: e.currentTarget.value })} />
-					{#if evening.status === 'open'}
+		<ul class="openings">
+			{#each openings as opening (opening.id)}
+				<li class:closed={opening.status === 'closed'}>
+					<strong>{formatDate(opening.date)}</strong>
+					<input aria-label={t('hours.start')} type="time" value={opening.start}
+						onchange={(e) => updateOpening(opening, { start: e.currentTarget.value })} />
+					<input aria-label={t('hours.end')} type="time" value={opening.end}
+						onchange={(e) => updateOpening(opening, { end: e.currentTarget.value })} />
+					{#if opening.status === 'open'}
 						<button onclick={() => {
-							const reason = prompt(t('evening.closedReason'));
-							if (reason !== null) updateEvening(evening, { status: 'closed', closed_reason: reason });
-						}}>{t('evening.close')}</button>
+							const reason = prompt(t('opening.closedReason'));
+							if (reason !== null) updateOpening(opening, { status: 'closed', closed_reason: reason });
+						}}>{t('opening.close')}</button>
 					{:else}
-						<button onclick={() => updateEvening(evening, { status: 'open', closed_reason: '' })}
-							>{t('evening.reopen')}</button
+						<button onclick={() => updateOpening(opening, { status: 'open', closed_reason: '' })}
+							>{t('opening.reopen')}</button
 						>
-						<span class="muted">{evening.closed_reason}</span>
+						<span class="muted">{opening.closed_reason}</span>
 					{/if}
-					<button onclick={() => deleteEvening(evening)}>{t('hours.delete')}</button>
-					{#if answerCounts[evening.id]}<span class="muted">{t('hours.answers', { n: answerCounts[evening.id] })}</span>{/if}
+					<button onclick={() => deleteOpening(opening)}>{t('hours.delete')}</button>
+					{#if answerCounts[opening.id]}<span class="muted">{t('hours.answers', { n: answerCounts[opening.id] })}</span>{/if}
 				</li>
 			{/each}
 		</ul>
@@ -202,10 +202,10 @@
 	.field span { display: none; font-size: 0.85rem; color: var(--muted); }
 	.inline { display: flex; flex-wrap: wrap; gap: 8px; align-items: end; }
 	.inline label { margin: 0; display: flex; flex-direction: column; gap: 4px; }
-	.evenings { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
-	.evenings li { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-	.evenings li strong { min-width: 110px; }
-	.evenings li input { width: auto; }
+	.openings { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+	.openings li { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+	.openings li strong { min-width: 110px; }
+	.openings li input { width: auto; }
 	.closed strong { text-decoration: line-through; color: var(--muted); }
 	@media (max-width: 700px) {
 		.row { grid-template-columns: 1fr 1fr; padding-bottom: 12px; border-bottom: 1px solid var(--border); }

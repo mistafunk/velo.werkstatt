@@ -1,23 +1,23 @@
 /// <reference path="../pb_data/types.d.ts" />
 
-// Keep the schedule filled: every night create the evenings of the next weeks.
-cronAdd("generate_evenings", "0 3 * * *", () => {
+// Keep the schedule filled: every night create the openings of the next weeks.
+cronAdd("generate_openings", "0 3 * * *", () => {
   const lib = require(`${__hooks}/lib.js`);
-  lib.generateEvenings($app);
+  lib.generateOpenings($app);
 });
 
 // Admins can trigger the generation right away (e.g. after changing hours).
-routerAdd("POST", "/api/velo/generate-evenings", (e) => {
+routerAdd("POST", "/api/velo/generate-openings", (e) => {
   const lib = require(`${__hooks}/lib.js`);
   if (!e.auth || (!e.auth.isSuperuser() && !e.auth.getBool("is_admin"))) {
-    throw new ForbiddenError("Only admins can generate evenings.");
+    throw new ForbiddenError("Only admins can generate openings.");
   }
-  const created = lib.generateEvenings($app);
+  const created = lib.generateOpenings($app);
   return e.json(200, { created });
 }, $apis.requireAuth());
 
 // Volunteers may set the lead and notes, but only admins may close an
-// evening or move it.
+// opening or move it.
 onRecordUpdateRequest((e) => {
   if (!e.hasSuperuserAuth() && !e.auth.getBool("is_admin")) {
     const original = e.record.original();
@@ -28,4 +28,4 @@ onRecordUpdateRequest((e) => {
     }
   }
   e.next();
-}, "evenings");
+}, "openings");

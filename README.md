@@ -5,8 +5,8 @@ Gemeinschaftszentrum Bachwiesen, Zurich. It is used by the volunteers on
 their phones and on the workshop tablet, in German or English.
 
 Phase 1 (this version) is the **volunteer schedule**: every volunteer says
-Yes / Maybe / No for each opening evening (Mon 17–20, Thu 19–21), and every
-evening shows whether it is staffed (at least 1, ideally 2, best 3 people)
+Yes / Maybe / No for each opening (Mon 17–20, Thu 19–21), and every
+opening shows whether it is staffed (at least 1, ideally 2, best 3 people)
 and whether someone with a workshop key is coming. Next up are the visitor
 log (entry fee, material, cash or TWINT) and later the inventory.
 
@@ -16,15 +16,15 @@ log (entry fee, material, cash or TWINT) and later the inventory.
 |---|---|
 | `pb/` | [PocketBase](https://pocketbase.io): database (SQLite), login by one-time email code, access rules, admin dashboard. Schema in `pb/pb_migrations`, server logic in `pb/pb_hooks`. |
 | `web/` | [SvelteKit](https://svelte.dev/docs/kit) single page app. The build lands in `pb/pb_public` and is served by PocketBase itself. Texts in `web/src/lib/i18n/{de,en}.js`. |
-| `tools/import_sheet.py` | Imports volunteers, evenings and answers from the "Wer Wann 2026" spreadsheet. |
+| `tools/import_sheet.py` | Imports volunteers, openings and answers from all "Wer Wann" tabs of the spreadsheet. |
 | `deploy/` | Caddy and systemd files for a small Swiss VPS. |
 
 Rules the app enforces:
 
-- Staffing: "Maybe" does not count. An evening with people but no key holder is red. See `web/src/lib/staffing.js`.
+- Staffing: "Maybe" does not count. An opening with people but no key holder is red. See `web/src/lib/staffing.js`.
 - Volunteers can only change their own answers, name, phone and language.
-- Only admins (`is_admin`) can add people, hand out keys, make admins, deactivate people and close evenings (holidays).
-- Evenings are created automatically every night for the next 12 weeks from the opening hours.
+- Only admins (`is_admin`) can add people, hand out keys, make admins, deactivate people and close openings (holidays).
+- Openings are created automatically every night for the next 12 weeks from the opening hours.
 
 ## Development
 
@@ -61,7 +61,7 @@ python3 -m unittest discover tools       # spreadsheet importer
 
 Until the switch-over the spreadsheet stays the source of truth. The
 importer reads every "Wer Wann <year>" tab (2022 onwards) and can rebuild
-the app's volunteers, evenings and answers from scratch at any time:
+the app's volunteers, openings and answers from scratch at any time:
 
 ```sh
 pip install openpyxl
@@ -70,11 +70,11 @@ PB_PASSWORD='superuser-password' python3 tools/import_sheet.py Einsatzdaten.xlsx
   --reset --admins "Your name" --key-holders "Name 1,Name 2,..."
 ```
 
-- `--reset` deletes all volunteers, evenings and answers first. Without it,
-  existing records are updated (volunteers by name, evenings by date).
+- `--reset` deletes all volunteers, openings and answers first. Without it,
+  existing records are updated (volunteers by name, openings by date).
 - `--admins` and `--key-holders` take first names as they appear in the
   sheet. Without `--key-holders`, the yellow names of the latest tab get a key.
-- Money and visitor numbers of each evening are kept in `sheet_totals`.
+- Money and visitor numbers of each opening are kept in `sheet_totals`.
 - Volunteers without an email in the "Team Email" tab get a placeholder
   address (`…@example.invalid`); fix it on their page before they can log in.
 
@@ -86,8 +86,8 @@ The importer's own tests: `python3 -m unittest discover tools`.
 ### Opening hours
 
 Admins edit the regular opening hours (weekday, time, valid from/until) on
-the "Opening hours" page, add single extra evenings, change the times of an
-evening, close it for a holiday or delete it.
+the "Opening hours" page, add single extra openings, change the times of an
+opening, close it for a holiday or delete it.
 
 ## Hosting
 

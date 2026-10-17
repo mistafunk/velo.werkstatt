@@ -8,8 +8,8 @@ export const pb = new PocketBase(typeof window === 'undefined' ? 'http://127.0.0
  * @typedef {{ id: string, name: string, email: string, phone: string, has_key: boolean,
  *   is_admin: boolean, active: boolean, lang: '' | 'de' | 'en' }} Volunteer
  * @typedef {{ id: string, date: string, start: string, end: string, status: 'open' | 'closed',
- *   closed_reason: string, lead: string, notes: string }} Evening
- * @typedef {{ id: string, evening: string, volunteer: string, answer: 'yes' | 'maybe' | 'no' }} Answer
+ *   closed_reason: string, lead: string, notes: string }} Opening
+ * @typedef {{ id: string, opening: string, volunteer: string, answer: 'yes' | 'maybe' | 'no' }} Answer
  */
 
 /** The logged in volunteer, kept in sync with the PocketBase auth store. */

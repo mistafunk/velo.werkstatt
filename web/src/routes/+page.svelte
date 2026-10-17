@@ -8,8 +8,8 @@
 	import AnswerButtons from '#lib/AnswerButtons.svelte';
 	import StaffingBadge from '#lib/StaffingBadge.svelte';
 
-	/** @type {import('#lib/pb.svelte.js').Evening[]} */
-	let evenings = $state([]);
+	/** @type {import('#lib/pb.svelte.js').Opening[]} */
+	let openings = $state([]);
 	/** @type {import('#lib/pb.svelte.js').Answer[]} */
 	let answers = $state([]);
 	/** @type {import('#lib/pb.svelte.js').Volunteer[]} */
@@ -20,11 +20,11 @@
 
 	const byId = $derived(new Map(volunteers.map((v) => [v.id, v])));
 	const rows = $derived(
-		evenings
+		openings
 			.map((e) => {
-				const mine = answers.filter((a) => a.evening === e.id);
+				const mine = answers.filter((a) => a.opening === e.id);
 				return {
-					evening: e,
+					opening: e,
 					s: staffing(e, mine, byId),
 					coming: mine.filter((a) => a.answer === 'yes').map((a) => byId.get(a.volunteer)).filter(Boolean),
 					myAnswer: mine.find((a) => a.volunteer === session.user?.id)?.answer
@@ -35,7 +35,7 @@
 
 	async function load() {
 		try {
-			({ evenings, answers, volunteers } = await loadSchedule());
+			({ openings, answers, volunteers } = await loadSchedule());
 		} catch (err) {
 			error = t('common.error', { message: /** @type {Error} */ (err).message });
 		} finally {
@@ -44,13 +44,13 @@
 	}
 
 	/**
-	 * @param {string} eveningId
+	 * @param {string} openingId
 	 * @param {'yes' | 'maybe' | 'no'} answer
 	 */
-	async function answer(eveningId, answer) {
+	async function answer(openingId, answer) {
 		if (!session.user) return;
 		try {
-			await saveAnswer(answers, eveningId, session.user.id, answer);
+			await saveAnswer(answers, openingId, session.user.id, answer);
 		} catch (err) {
 			error = t('common.error', { message: /** @type {Error} */ (err).message });
 		}
@@ -73,18 +73,18 @@
 	<p class="muted">{t('schedule.empty')}</p>
 {/if}
 
-<ul class="evenings">
-	{#each rows as row (row.evening.id)}
+<ul class="openings">
+	{#each rows as row (row.opening.id)}
 		<li class="card">
 			<div class="top">
-				<a href={resolve('/evening/[id]', { id: row.evening.id })} class="date">
-					{formatDate(row.evening.date)}
-					<span class="muted">{row.evening.start}–{row.evening.end}</span>
+				<a href={resolve('/opening/[id]', { id: row.opening.id })} class="date">
+					{formatDate(row.opening.date)}
+					<span class="muted">{row.opening.start}–{row.opening.end}</span>
 				</a>
 				<StaffingBadge s={row.s} />
 			</div>
-			{#if row.evening.status === 'closed'}
-				<p class="muted">{t('evening.closedBecause', { reason: row.evening.closed_reason })}</p>
+			{#if row.opening.status === 'closed'}
+				<p class="muted">{t('opening.closedBecause', { reason: row.opening.closed_reason })}</p>
 			{:else}
 				<p class="names">
 					{#if row.coming.length}
@@ -93,14 +93,14 @@
 						<span class="muted">{t('schedule.nobody')}</span>
 					{/if}
 				</p>
-				<AnswerButtons value={row.myAnswer} onchange={(a) => answer(row.evening.id, a)} />
+				<AnswerButtons value={row.myAnswer} onchange={(a) => answer(row.opening.id, a)} />
 			{/if}
 		</li>
 	{/each}
 </ul>
 
 <style>
-	.evenings { list-style: none; padding: 0; display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+	.openings { list-style: none; padding: 0; display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
 	.top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 	.date { font-weight: 600; color: var(--text); text-decoration: none; }
 	.date .muted { white-space: nowrap; }

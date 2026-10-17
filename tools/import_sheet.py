@@ -2,7 +2,7 @@
 """Rebuild the app's schedule data from the "Wer Wann" spreadsheet.
 
 Reads every "Wer Wann <year>" tab of the workbook (2022 onwards) and creates
-volunteers, evenings and Yes / Maybe / No answers in PocketBase. Until the
+volunteers, openings and Yes / Maybe / No answers in PocketBase. Until the
 switch-over the spreadsheet stays the source of truth, so the importer can
 wipe the app's schedule data and load it again from the latest sheet.
 
@@ -13,8 +13,8 @@ Usage:
         [--reset] [--admins NAME,...] [--key-holders NAME,...] [--dry-run]
 
 Without --reset, running it again updates what is there: volunteers are
-matched by name, evenings by date, answers by evening and volunteer.
-With --reset, all volunteers, evenings and answers are deleted first.
+matched by name, openings by date, answers by opening and volunteer.
+With --reset, all volunteers, openings and answers are deleted first.
 
 How the sheet is read:
 - Row 2 holds the column titles. Volunteer columns are the named columns
@@ -23,10 +23,10 @@ How the sheet is read:
 - "Name (Reserve)" becomes "Name"; the same name in different years is
   the same volunteer.
 - Yep / (Ev) / Nope become yes / maybe / no.
-- Tabs with a 🔑 column: an evening without a key status is closed, and its
+- Tabs with a 🔑 column: an opening without a key status is closed, and its
   remark becomes the reason.
-- "ScheffIn" becomes the evening's lead, "Bemerkungen" its notes, and the
-  money and visitor columns are kept per evening in `sheet_totals` for the
+- "ScheffIn" becomes the opening's lead, "Bemerkungen" its notes, and the
+  money and visitor columns are kept per opening in `sheet_totals` for the
   statistics.
 - When tabs overlap (e.g. 1 Jan 2026 in the 2025 tab), the later tab wins.
 - Key holders: the names given with --key-holders, otherwise the yellow name
@@ -58,7 +58,7 @@ TOTALS = {
     "cash": ("5.- rote kasse", "bargeld"),
     "twint": ("5-liber twint",),
     "material": ("mat & spenden",),
-    # 2022 has "Anzahl Besucher" per evening and "Besucher" per quarter.
+    # 2022 has "Anzahl Besucher" per opening and "Besucher" per quarter.
     "visitors": ("anzahl besucher", "besucher"),
 }
 
@@ -76,7 +76,7 @@ def number(value):
 
 
 def parse_tab(ws):
-    """Return the volunteer names (with key colour) and the evenings of one tab."""
+    """Return the volunteer names (with key colour) and the openings of one tab."""
     header = {c.column: str(c.value).strip() for c in ws[2] if c.value is not None}
     lower = {col: title.lower() for col, title in header.items()}
 
@@ -99,7 +99,7 @@ def parse_tab(ws):
     }
     total_cols = {key: find(*prefixes, exact=key == "visitors") for key, prefixes in TOTALS.items()}
 
-    evenings = []
+    openings = []
     for row in ws.iter_rows(min_row=3):
         date = row[0].value
         if not isinstance(date, dt.datetime):
@@ -113,7 +113,7 @@ def parse_tab(ws):
             if value in ANSWERS:
                 answers[name] = ANSWERS[value]
         totals = {key: number(cell(col)) for key, col in total_cols.items() if number(cell(col)) is not None}
-        evenings.append({
+        openings.append({
             "date": date.date(),
             "closed": closed,
             "remark": remark,
@@ -121,7 +121,7 @@ def parse_tab(ws):
             "answers": answers,
             "totals": totals,
         })
-    return list(volunteers.values()), evenings
+    return list(volunteers.values()), openings
 
 
 def read_contacts(wb):
@@ -202,10 +202,10 @@ def main():
     p.add_argument("xlsx")
     p.add_argument("--url", default="http://127.0.0.1:8090")
     p.add_argument("--admin-email", required=True, help="PocketBase superuser; password in PB_PASSWORD")
-    p.add_argument("--reset", action="store_true", help="delete all volunteers, evenings and answers first")
+    p.add_argument("--reset", action="store_true", help="delete all volunteers, openings and answers first")
     p.add_argument("--admins", default="", help="comma separated names that get admin rights")
     p.add_argument("--key-holders", default="", help="comma separated names with a key (default: yellow names)")
-    p.add_argument("--default-hours", default="19:00-21:00", help="hours of evenings on days without opening rule")
+    p.add_argument("--default-hours", default="19:00-21:00", help="hours of openings on days without opening rule")
     p.add_argument("--dry-run", action="store_true")
     args = p.parse_args()
 
@@ -216,17 +216,17 @@ def main():
     contacts = read_contacts(wb)
 
     # Collect everything first, later tabs override earlier ones.
-    names, evenings = {}, {}
+    names, openings = {}, {}
     latest_names, yellow = set(), set()
     for tab in tabs:
-        tab_volunteers, tab_evenings = parse_tab(wb[tab])
+        tab_volunteers, tab_openings = parse_tab(wb[tab])
         for name, is_yellow in tab_volunteers:
             names.setdefault(name.lower(), name)
-        for e in tab_evenings:
-            evenings[e["date"]] = e
+        for e in tab_openings:
+            openings[e["date"]] = e
         latest_names = {n.lower() for n, _ in tab_volunteers}
         yellow = {n.lower() for n, is_yellow in tab_volunteers if is_yellow}
-        print(f"{tab}: {len(tab_volunteers)} volunteers, {len(tab_evenings)} evenings")
+        print(f"{tab}: {len(tab_volunteers)} volunteers, {len(tab_openings)} openings")
 
     split = lambda s: {x.strip().lower() for x in s.split(",") if x.strip()}  # noqa: E731
     key_holders = split(args.key_holders) or yellow
@@ -238,12 +238,12 @@ def main():
     api.login(args.admin_email, os.environ.get("PB_PASSWORD") or sys.exit("Set PB_PASSWORD."))
 
     if args.reset:
-        for collection in ("availability", "evenings", "users"):
+        for collection in ("availability", "openings", "users"):
             print(f"deleted {api.delete_all(collection)} {collection}")
 
     existing_users = {u["name"].lower(): u["id"] for u in api.all("users", "id,name")}
-    existing_evenings = {e["date"]: e["id"] for e in api.all("evenings", "id,date")}
-    existing_answers = {(a["evening"], a["volunteer"]): a["id"] for a in api.all("availability", "id,evening,volunteer")}
+    existing_openings = {e["date"]: e["id"] for e in api.all("openings", "id,date")}
+    existing_answers = {(a["opening"], a["volunteer"]): a["id"] for a in api.all("availability", "id,opening,volunteer")}
     hours = {r["weekday"]: (r["start"], r["end"]) for r in api.all("opening_rules", "weekday,start,end")}
     default_hours = tuple(args.default_hours.split("-"))
 
@@ -265,7 +265,7 @@ def main():
         print(f"volunteer {name:14} {' '.join(flags):18} {'NO EMAIL, fix in the app' if email.endswith('.invalid') else ''}")
 
     answers = 0
-    for date, e in sorted(evenings.items()):
+    for date, e in sorted(openings.items()):
         start, end = hours.get(date.isoweekday(), default_hours)
         data = {
             "date": date.isoformat(),
@@ -277,16 +277,16 @@ def main():
             "lead": volunteer_ids.get(e["lead"], ""),
             "sheet_totals": e["totals"] or None,
         }
-        evening_id = api.write("evenings", existing_evenings.get(date.isoformat()), data)["id"]
+        opening_id = api.write("openings", existing_openings.get(date.isoformat()), data)["id"]
         for name, answer in e["answers"].items():
             volunteer_id = volunteer_ids[name.lower()]
             api.write(
                 "availability",
-                existing_answers.get((evening_id, volunteer_id)),
-                {"evening": evening_id, "volunteer": volunteer_id, "answer": answer},
+                existing_answers.get((opening_id, volunteer_id)),
+                {"opening": opening_id, "volunteer": volunteer_id, "answer": answer},
             )
             answers += 1
-    print(f"{len(volunteer_ids)} volunteers, {len(evenings)} evenings, {answers} answers{' (dry run)' if args.dry_run else ''}")
+    print(f"{len(volunteer_ids)} volunteers, {len(openings)} openings, {answers} answers{' (dry run)' if args.dry_run else ''}")
 
 
 if __name__ == "__main__":

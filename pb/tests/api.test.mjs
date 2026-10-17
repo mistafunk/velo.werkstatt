@@ -54,26 +54,26 @@ after(() => {
   rmSync(dir, { recursive: true, force: true });
 });
 
-test("default opening hours are seeded and evenings get generated", async () => {
+test("default opening hours are seeded and openings get generated", async () => {
   const rules = await api("GET", "/api/collections/opening_rules/records?sort=weekday", superToken);
   assert.deepEqual(rules.body.items.map((r) => [r.weekday, r.start, r.end]), [[1, "17:00", "20:00"], [4, "19:00", "21:00"]]);
-  const gen = await api("POST", "/api/velo/generate-evenings", superToken, {});
+  const gen = await api("POST", "/api/velo/generate-openings", superToken, {});
   assert.equal(gen.body.created, 24);
-  const again = await api("POST", "/api/velo/generate-evenings", superToken, {});
-  assert.equal(again.body.created, 0, "existing evenings are not duplicated");
+  const again = await api("POST", "/api/velo/generate-openings", superToken, {});
+  assert.equal(again.body.created, 0, "existing openings are not duplicated");
 });
 
 test("volunteers manage only their own answers", async () => {
   const anna = await createVolunteer("anna");
   const beat = await createVolunteer("beat");
-  const ev = (await api("GET", "/api/collections/evenings/records?sort=date&perPage=1", anna.token)).body.items[0];
+  const ev = (await api("GET", "/api/collections/openings/records?sort=date&perPage=1", anna.token)).body.items[0];
 
-  const own = await api("POST", "/api/collections/availability/records", anna.token, { evening: ev.id, volunteer: anna.id, answer: "yes" });
+  const own = await api("POST", "/api/collections/availability/records", anna.token, { opening: ev.id, volunteer: anna.id, answer: "yes" });
   assert.equal(own.status, 200);
-  const other = await api("POST", "/api/collections/availability/records", anna.token, { evening: ev.id, volunteer: beat.id, answer: "yes" });
+  const other = await api("POST", "/api/collections/availability/records", anna.token, { opening: ev.id, volunteer: beat.id, answer: "yes" });
   assert.equal(other.status, 400);
-  const dup = await api("POST", "/api/collections/availability/records", anna.token, { evening: ev.id, volunteer: anna.id, answer: "no" });
-  assert.equal(dup.status, 400, "one answer per volunteer and evening");
+  const dup = await api("POST", "/api/collections/availability/records", anna.token, { opening: ev.id, volunteer: anna.id, answer: "no" });
+  assert.equal(dup.status, 400, "one answer per volunteer and opening");
   const change = await api("PATCH", `/api/collections/availability/records/${own.body.id}`, anna.token, { answer: "maybe" });
   assert.equal(change.status, 200);
   const steal = await api("PATCH", `/api/collections/availability/records/${own.body.id}`, beat.token, { answer: "no" });
@@ -82,7 +82,7 @@ test("volunteers manage only their own answers", async () => {
   assert.equal(hijack.status, 404);
 });
 
-test("only admins hand out keys and close evenings", async () => {
+test("only admins hand out keys and close openings", async () => {
   const carla = await createVolunteer("carla");
   const boss = await createVolunteer("boss", { is_admin: true });
 
@@ -94,16 +94,16 @@ test("only admins hand out keys and close evenings", async () => {
   assert.equal(adminKey.status, 200);
   assert.equal(adminKey.body.has_key, true);
 
-  const ev = (await api("GET", "/api/collections/evenings/records?sort=date&perPage=1", carla.token)).body.items[0];
-  const lead = await api("PATCH", `/api/collections/evenings/records/${ev.id}`, carla.token, { lead: carla.id });
+  const ev = (await api("GET", "/api/collections/openings/records?sort=date&perPage=1", carla.token)).body.items[0];
+  const lead = await api("PATCH", `/api/collections/openings/records/${ev.id}`, carla.token, { lead: carla.id });
   assert.equal(lead.status, 200);
-  const close = await api("PATCH", `/api/collections/evenings/records/${ev.id}`, carla.token, { status: "closed" });
+  const close = await api("PATCH", `/api/collections/openings/records/${ev.id}`, carla.token, { status: "closed" });
   assert.equal(close.status, 403);
-  const adminClose = await api("PATCH", `/api/collections/evenings/records/${ev.id}`, boss.token, { status: "closed", closed_reason: "Feiertag" });
+  const adminClose = await api("PATCH", `/api/collections/openings/records/${ev.id}`, boss.token, { status: "closed", closed_reason: "Feiertag" });
   assert.equal(adminClose.status, 200);
   const newUser = await api("POST", "/api/collections/users/records", carla.token, { email: "x@example.com" });
   assert.equal(newUser.status, 400);
-  const gen = await api("POST", "/api/velo/generate-evenings", carla.token, {});
+  const gen = await api("POST", "/api/velo/generate-openings", carla.token, {});
   assert.equal(gen.status, 403);
 });
 
@@ -114,11 +114,11 @@ test("inactive volunteers cannot log in and guests see nothing", async () => {
   assert.equal(imp.status, 403);
   const users = await api("GET", "/api/collections/users/records", null);
   assert.equal(users.body.items.length, 0);
-  const evenings = await api("GET", "/api/collections/evenings/records", null);
-  assert.equal(evenings.body.items.length, 0);
+  const openings = await api("GET", "/api/collections/openings/records", null);
+  assert.equal(openings.body.items.length, 0);
 });
 
-test("only admins edit opening hours and add or delete evenings", async () => {
+test("only admins edit opening hours and add or delete openings", async () => {
   const erin = await createVolunteer("erin");
   const admin = await createVolunteer("admin2", { is_admin: true });
   const rule = { weekday: 6, start: "10:00", end: "13:00" };
@@ -129,25 +129,25 @@ test("only admins edit opening hours and add or delete evenings", async () => {
   assert.equal(changed.status, 404);
 
   const extra = { date: "2027-03-06", start: "10:00", end: "13:00", status: "open" };
-  assert.equal((await api("POST", "/api/collections/evenings/records", erin.token, extra)).status, 400);
-  const ev = await api("POST", "/api/collections/evenings/records", admin.token, extra);
+  assert.equal((await api("POST", "/api/collections/openings/records", erin.token, extra)).status, 400);
+  const ev = await api("POST", "/api/collections/openings/records", admin.token, extra);
   assert.equal(ev.status, 200);
-  const moved = await api("PATCH", `/api/collections/evenings/records/${ev.body.id}`, erin.token, { start: "11:00" });
+  const moved = await api("PATCH", `/api/collections/openings/records/${ev.body.id}`, erin.token, { start: "11:00" });
   assert.equal(moved.status, 403);
-  const retimed = await api("PATCH", `/api/collections/evenings/records/${ev.body.id}`, admin.token, { start: "11:00" });
+  const retimed = await api("PATCH", `/api/collections/openings/records/${ev.body.id}`, admin.token, { start: "11:00" });
   assert.equal(retimed.status, 200);
-  assert.equal((await api("DELETE", `/api/collections/evenings/records/${ev.body.id}`, erin.token)).status, 404);
-  assert.equal((await api("DELETE", `/api/collections/evenings/records/${ev.body.id}`, admin.token)).status, 204);
+  assert.equal((await api("DELETE", `/api/collections/openings/records/${ev.body.id}`, erin.token)).status, 404);
+  assert.equal((await api("DELETE", `/api/collections/openings/records/${ev.body.id}`, admin.token)).status, 204);
 });
 
-test("generated evenings respect valid_from and valid_to", async () => {
-  const before = (await api("GET", "/api/collections/evenings/records?perPage=1", superToken)).body.totalItems;
+test("generated openings respect valid_from and valid_to", async () => {
+  const before = (await api("GET", "/api/collections/openings/records?perPage=1", superToken)).body.totalItems;
   const from = new Date(Date.now() + 14 * 86400000).toISOString().slice(0, 10);
   const to = new Date(Date.now() + 27 * 86400000).toISOString().slice(0, 10);
   await api("POST", "/api/collections/opening_rules/records", superToken, { weekday: 3, start: "18:00", end: "20:00", valid_from: from, valid_to: to });
-  const gen = await api("POST", "/api/velo/generate-evenings", superToken, {});
+  const gen = await api("POST", "/api/velo/generate-openings", superToken, {});
   // Saturdays from the earlier test (12 weeks) + exactly two Wednesdays.
-  const wednesdays = await api("GET", `/api/collections/evenings/records?filter=${encodeURIComponent("start = '18:00'")}`, superToken);
+  const wednesdays = await api("GET", `/api/collections/openings/records?filter=${encodeURIComponent("start = '18:00'")}`, superToken);
   assert.equal(wednesdays.body.totalItems, 2);
   assert.ok(wednesdays.body.items.every((e) => e.date >= from && e.date <= to));
   assert.ok(gen.body.created >= 2 && before > 0);
