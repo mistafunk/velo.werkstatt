@@ -22,13 +22,13 @@ function ruleApplies(rule, dateStr) {
   return true;
 }
 
-// Creates the openings of the next weeks from the opening rules. Existing
-// openings (including ones marked closed) are left untouched.
-// Returns the number of openings created.
-function generateOpenings(app, fromDate, weeks) {
+// Creates the sessions of the next weeks from the opening rules. Existing
+// sessions (including ones marked closed) are left untouched.
+// Returns the number of sessions created.
+function generateSessions(app, fromDate, weeks) {
   weeks = weeks || WEEKS_AHEAD;
   const rules = app.findAllRecords("opening_rules");
-  const collection = app.findCollectionByNameOrId("openings");
+  const collection = app.findCollectionByNameOrId("sessions");
   const start = new Date((fromDate || isoDate(new Date())) + "T00:00:00Z");
   let created = 0;
   for (let i = 0; i < weeks * 7; i++) {
@@ -37,7 +37,7 @@ function generateOpenings(app, fromDate, weeks) {
     for (const rule of rules) {
       if (!ruleApplies(rule, dateStr)) continue;
       try {
-        app.findFirstRecordByData("openings", "date", dateStr);
+        app.findFirstRecordByData("sessions", "date", dateStr);
         continue;
       } catch (_) {
         // not found, create it below
@@ -54,4 +54,4 @@ function generateOpenings(app, fromDate, weeks) {
   return created;
 }
 
-module.exports = { generateOpenings, weekdayOf, isoDate };
+module.exports = { generateSessions, weekdayOf, isoDate };

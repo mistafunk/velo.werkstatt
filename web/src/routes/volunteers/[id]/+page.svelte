@@ -2,12 +2,12 @@
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import { pb, session } from '#lib/pb.svelte.js';
+	import { pb, auth } from '#lib/pb.svelte.js';
 	import { t, setLang } from '#lib/i18n/index.svelte.js';
 
 	const isNew = $derived(page.params.id === 'new');
-	const isAdmin = $derived(!!session.user?.is_admin);
-	const isSelf = $derived(page.params.id === session.user?.id);
+	const isAdmin = $derived(!!auth.user?.is_admin);
+	const isSelf = $derived(page.params.id === auth.user?.id);
 	const canEdit = $derived(isAdmin || isSelf);
 
 	let form = $state({ name: '', email: '', phone: '', lang: 'de', has_key: false, is_admin: false, active: true });

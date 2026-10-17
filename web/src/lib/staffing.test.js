@@ -12,7 +12,7 @@ const open = { status: 'open' };
 /** @param {[string, string][]} pairs */
 const answers = (pairs) => pairs.map(([volunteer, answer]) => ({ volunteer, answer }));
 
-test('closed openings are closed whatever the answers', () => {
+test('closed sessions are closed whatever the answers', () => {
 	assert.equal(staffing({ status: 'closed' }, answers([['keyA', 'yes']]), volunteers).level, 'closed');
 });
 

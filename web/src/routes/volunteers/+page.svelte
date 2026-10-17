@@ -1,7 +1,7 @@
 <script>
 	import { resolve } from '$app/paths';
 	import { onMount } from 'svelte';
-	import { pb, session } from '#lib/pb.svelte.js';
+	import { pb, auth } from '#lib/pb.svelte.js';
 	import { t } from '#lib/i18n/index.svelte.js';
 
 	/** @type {import('#lib/pb.svelte.js').Volunteer[]} */
@@ -18,7 +18,7 @@
 </script>
 
 <h1>{t('volunteers.title')}</h1>
-{#if session.user?.is_admin}
+{#if auth.user?.is_admin}
 	<p><a href={resolve('/volunteers/[id]', { id: 'new' })}>+ {t('volunteers.new')}</a></p>
 {/if}
 {#if error}<p class="error">{error}</p>{/if}

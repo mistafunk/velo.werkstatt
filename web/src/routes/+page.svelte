@@ -1,15 +1,15 @@
 <script>
 	import { resolve } from '$app/paths';
 	import { onMount } from 'svelte';
-	import { pb, session } from '#lib/pb.svelte.js';
+	import { pb, auth } from '#lib/pb.svelte.js';
 	import { t, formatDate } from '#lib/i18n/index.svelte.js';
 	import { staffing, NEEDS_PEOPLE } from '#lib/staffing.js';
 	import { loadSchedule, saveAnswer } from '#lib/schedule.js';
 	import AnswerButtons from '#lib/AnswerButtons.svelte';
 	import StaffingBadge from '#lib/StaffingBadge.svelte';
 
-	/** @type {import('#lib/pb.svelte.js').Opening[]} */
-	let openings = $state([]);
+	/** @type {import('#lib/pb.svelte.js').Session[]} */
+	let sessions = $state([]);
 	/** @type {import('#lib/pb.svelte.js').Answer[]} */
 	let answers = $state([]);
 	/** @type {import('#lib/pb.svelte.js').Volunteer[]} */
@@ -20,14 +20,14 @@
 
 	const byId = $derived(new Map(volunteers.map((v) => [v.id, v])));
 	const rows = $derived(
-		openings
+		sessions
 			.map((e) => {
-				const mine = answers.filter((a) => a.opening === e.id);
+				const mine = answers.filter((a) => a.session === e.id);
 				return {
-					opening: e,
+					session: e,
 					s: staffing(e, mine, byId),
 					coming: mine.filter((a) => a.answer === 'yes').map((a) => byId.get(a.volunteer)).filter(Boolean),
-					myAnswer: mine.find((a) => a.volunteer === session.user?.id)?.answer
+					myAnswer: mine.find((a) => a.volunteer === auth.user?.id)?.answer
 				};
 			})
 			.filter((r) => !onlyNeeds || NEEDS_PEOPLE.has(r.s.level))
@@ -35,7 +35,7 @@
 
 	async function load() {
 		try {
-			({ openings, answers, volunteers } = await loadSchedule());
+			({ sessions, answers, volunteers } = await loadSchedule());
 		} catch (err) {
 			error = t('common.error', { message: /** @type {Error} */ (err).message });
 		} finally {
@@ -44,13 +44,13 @@
 	}
 
 	/**
-	 * @param {string} openingId
+	 * @param {string} sessionId
 	 * @param {'yes' | 'maybe' | 'no'} answer
 	 */
-	async function answer(openingId, answer) {
-		if (!session.user) return;
+	async function answer(sessionId, answer) {
+		if (!auth.user) return;
 		try {
-			await saveAnswer(answers, openingId, session.user.id, answer);
+			await saveAnswer(answers, sessionId, auth.user.id, answer);
 		} catch (err) {
 			error = t('common.error', { message: /** @type {Error} */ (err).message });
 		}
@@ -73,18 +73,18 @@
 	<p class="muted">{t('schedule.empty')}</p>
 {/if}
 
-<ul class="openings">
-	{#each rows as row (row.opening.id)}
+<ul class="sessions">
+	{#each rows as row (row.session.id)}
 		<li class="card">
 			<div class="top">
-				<a href={resolve('/opening/[id]', { id: row.opening.id })} class="date">
-					{formatDate(row.opening.date)}
-					<span class="muted">{row.opening.start}–{row.opening.end}</span>
+				<a href={resolve('/session/[id]', { id: row.session.id })} class="date">
+					{formatDate(row.session.date)}
+					<span class="muted">{row.session.start}–{row.session.end}</span>
 				</a>
 				<StaffingBadge s={row.s} />
 			</div>
-			{#if row.opening.status === 'closed'}
-				<p class="muted">{t('opening.closedBecause', { reason: row.opening.closed_reason })}</p>
+			{#if row.session.status === 'closed'}
+				<p class="muted">{t('session.closedBecause', { reason: row.session.closed_reason })}</p>
 			{:else}
 				<p class="names">
 					{#if row.coming.length}
@@ -93,14 +93,14 @@
 						<span class="muted">{t('schedule.nobody')}</span>
 					{/if}
 				</p>
-				<AnswerButtons value={row.myAnswer} onchange={(a) => answer(row.opening.id, a)} />
+				<AnswerButtons value={row.myAnswer} onchange={(a) => answer(row.session.id, a)} />
 			{/if}
 		</li>
 	{/each}
 </ul>
 
 <style>
-	.openings { list-style: none; padding: 0; display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+	.sessions { list-style: none; padding: 0; display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
 	.top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 	.date { font-weight: 600; color: var(--text); text-decoration: none; }
 	.date .muted { white-space: nowrap; }

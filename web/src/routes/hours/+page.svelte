@@ -1,14 +1,14 @@
 <script>
 	import { onMount } from 'svelte';
-	import { pb, session, todayIso } from '#lib/pb.svelte.js';
+	import { pb, auth, todayIso } from '#lib/pb.svelte.js';
 	import { t, formatDate } from '#lib/i18n/index.svelte.js';
 
 	/** @typedef {{ id: string, weekday: number, start: string, end: string, valid_from: string, valid_to: string }} Rule */
 
 	/** @type {Rule[]} */
 	let rules = $state([]);
-	/** @type {import('#lib/pb.svelte.js').Opening[]} */
-	let openings = $state([]);
+	/** @type {import('#lib/pb.svelte.js').Session[]} */
+	let sessions = $state([]);
 	/** @type {Record<string, number>} */
 	let answerCounts = $state({});
 	let error = $state('');
@@ -31,14 +31,14 @@
 			const from = todayIso();
 			const [r, e, a] = await Promise.all([
 				pb.collection('opening_rules').getFullList({ sort: 'weekday,start' }),
-				pb.collection('openings').getList(1, 40, { filter: pb.filter('date >= {:from}', { from }), sort: 'date' }),
-				pb.collection('availability').getFullList({ filter: pb.filter('opening.date >= {:from}', { from }), fields: 'opening' })
+				pb.collection('sessions').getList(1, 40, { filter: pb.filter('date >= {:from}', { from }), sort: 'date' }),
+				pb.collection('availability').getFullList({ filter: pb.filter('session.date >= {:from}', { from }), fields: 'session' })
 			]);
 			rules = /** @type {any} */ (r);
-			openings = /** @type {any} */ (e.items);
+			sessions = /** @type {any} */ (e.items);
 			/** @type {Record<string, number>} */
 			const counts = {};
-			for (const x of a) counts[x.opening] = (counts[x.opening] ?? 0) + 1;
+			for (const x of a) counts[x.session] = (counts[x.session] ?? 0) + 1;
 			answerCounts = counts;
 		} catch (err) {
 			fail(err);
@@ -82,35 +82,35 @@
 	}
 
 	/** @param {SubmitEvent} e */
-	function addOpening(e) {
+	function addSession(e) {
 		e.preventDefault();
-		run(() => pb.collection('openings').create({ ...extra, status: 'open' }));
+		run(() => pb.collection('sessions').create({ ...extra, status: 'open' }));
 	}
 
 	function generate() {
 		run(async () => {
-			const res = await pb.send('/api/velo/generate-openings', { method: 'POST' });
+			const res = await pb.send('/api/velo/generate-sessions', { method: 'POST' });
 			return t('hours.generated', { n: res.created });
 		});
 	}
 
-	/** @param {import('#lib/pb.svelte.js').Opening} opening */
-	function deleteOpening(opening) {
-		if (!confirm(t('hours.confirmDelete', { date: formatDate(opening.date) }))) return;
-		run(() => pb.collection('openings').delete(opening.id));
+	/** @param {import('#lib/pb.svelte.js').Session} session */
+	function deleteSession(session) {
+		if (!confirm(t('hours.confirmDelete', { date: formatDate(session.date) }))) return;
+		run(() => pb.collection('sessions').delete(session.id));
 	}
 
 	/**
-	 * @param {import('#lib/pb.svelte.js').Opening} opening
+	 * @param {import('#lib/pb.svelte.js').Session} session
 	 * @param {Record<string, unknown>} changes
 	 */
-	const updateOpening = (opening, changes) => run(() => pb.collection('openings').update(opening.id, changes));
+	const updateSession = (session, changes) => run(() => pb.collection('sessions').update(session.id, changes));
 
 	onMount(load);
 </script>
 
 <h1>{t('hours.title')}</h1>
-{#if !session.user?.is_admin}
+{#if !auth.user?.is_admin}
 	<p class="muted">{t('volunteer.adminOnly')}</p>
 {:else}
 	{#if error}<p class="error">{error}</p>{/if}
@@ -154,7 +154,7 @@
 
 	<section class="card">
 		<h2>{t('hours.extra')}</h2>
-		<form class="inline" onsubmit={addOpening}>
+		<form class="inline" onsubmit={addSession}>
 			<label>{t('hours.date')}<input type="date" required bind:value={extra.date} /></label>
 			<label>{t('hours.start')}<input type="time" required bind:value={extra.start} /></label>
 			<label>{t('hours.end')}<input type="time" required bind:value={extra.end} /></label>
@@ -165,27 +165,27 @@
 	<section class="card">
 		<h2>{t('hours.upcoming')}</h2>
 		<p class="muted">{t('hours.upcomingHelp')}</p>
-		<ul class="openings">
-			{#each openings as opening (opening.id)}
-				<li class:closed={opening.status === 'closed'}>
-					<strong>{formatDate(opening.date)}</strong>
-					<input aria-label={t('hours.start')} type="time" value={opening.start}
-						onchange={(e) => updateOpening(opening, { start: e.currentTarget.value })} />
-					<input aria-label={t('hours.end')} type="time" value={opening.end}
-						onchange={(e) => updateOpening(opening, { end: e.currentTarget.value })} />
-					{#if opening.status === 'open'}
+		<ul class="sessions">
+			{#each sessions as session (session.id)}
+				<li class:closed={session.status === 'closed'}>
+					<strong>{formatDate(session.date)}</strong>
+					<input aria-label={t('hours.start')} type="time" value={session.start}
+						onchange={(e) => updateSession(session, { start: e.currentTarget.value })} />
+					<input aria-label={t('hours.end')} type="time" value={session.end}
+						onchange={(e) => updateSession(session, { end: e.currentTarget.value })} />
+					{#if session.status === 'open'}
 						<button onclick={() => {
-							const reason = prompt(t('opening.closedReason'));
-							if (reason !== null) updateOpening(opening, { status: 'closed', closed_reason: reason });
-						}}>{t('opening.close')}</button>
+							const reason = prompt(t('session.closedReason'));
+							if (reason !== null) updateSession(session, { status: 'closed', closed_reason: reason });
+						}}>{t('session.close')}</button>
 					{:else}
-						<button onclick={() => updateOpening(opening, { status: 'open', closed_reason: '' })}
-							>{t('opening.reopen')}</button
+						<button onclick={() => updateSession(session, { status: 'open', closed_reason: '' })}
+							>{t('session.reopen')}</button
 						>
-						<span class="muted">{opening.closed_reason}</span>
+						<span class="muted">{session.closed_reason}</span>
 					{/if}
-					<button onclick={() => deleteOpening(opening)}>{t('hours.delete')}</button>
-					{#if answerCounts[opening.id]}<span class="muted">{t('hours.answers', { n: answerCounts[opening.id] })}</span>{/if}
+					<button onclick={() => deleteSession(session)}>{t('hours.delete')}</button>
+					{#if answerCounts[session.id]}<span class="muted">{t('hours.answers', { n: answerCounts[session.id] })}</span>{/if}
 				</li>
 			{/each}
 		</ul>
@@ -202,10 +202,10 @@
 	.field span { display: none; font-size: 0.85rem; color: var(--muted); }
 	.inline { display: flex; flex-wrap: wrap; gap: 8px; align-items: end; }
 	.inline label { margin: 0; display: flex; flex-direction: column; gap: 4px; }
-	.openings { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
-	.openings li { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-	.openings li strong { min-width: 110px; }
-	.openings li input { width: auto; }
+	.sessions { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+	.sessions li { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+	.sessions li strong { min-width: 110px; }
+	.sessions li input { width: auto; }
 	.closed strong { text-decoration: line-through; color: var(--muted); }
 	@media (max-width: 700px) {
 		.row { grid-template-columns: 1fr 1fr; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
