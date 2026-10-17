@@ -62,7 +62,6 @@ export default {
 	'volunteer.save': 'Speichern',
 	'volunteer.saved': 'Gespeichert',
 	'volunteer.created': 'Person angelegt',
-	'volunteer.adminOnly': 'Nur Admins können das ändern.',
 	'me.badge': 'Ich',
 	'me.label': 'Meine Teilnahme',
 	'me.yes': 'Ja',

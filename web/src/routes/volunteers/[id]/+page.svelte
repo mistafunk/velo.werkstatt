@@ -83,9 +83,10 @@
 	</select>
 
 	<label class="check"><input type="checkbox" bind:checked={form.has_key} disabled={!canEdit} />{t('volunteer.hasKey')}</label>
-	<label class="check"><input type="checkbox" bind:checked={form.is_admin} disabled={!isAdmin} />{t('volunteer.isAdmin')}</label>
-	<label class="check"><input type="checkbox" bind:checked={form.active} disabled={!isAdmin} />{t('volunteer.active')}</label>
-	{#if !isAdmin}<p class="muted">{t('volunteer.adminOnly')}</p>{/if}
+	{#if isAdmin}
+		<label class="check"><input type="checkbox" bind:checked={form.is_admin} />{t('volunteer.isAdmin')}</label>
+		<label class="check"><input type="checkbox" bind:checked={form.active} />{t('volunteer.active')}</label>
+	{/if}
 
 	{#if canEdit}<p><button class="primary">{t('volunteer.save')}</button></p>{/if}
 	{#if message}<p class="ok">{message}</p>{/if}
