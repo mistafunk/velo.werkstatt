@@ -68,7 +68,7 @@ a.button, label.button { display: inline-flex; align-items: center; min-height: 
 button.link { border: none; background: none; padding: 0; min-height: 0; color: var(--muted); font-weight: 400; }
 label { display: block; margin: 12px 0 4px; font-weight: 600; }
 label.check { display: flex; gap: 8px; align-items: center; font-weight: 400; }
-label.check input { min-height: 0; width: 20px; height: 20px; }
+label.check input { min-height: 0; width: 20px; height: 20px; flex: none; }
 input:not([type='checkbox']), select, textarea { width: 100%; }
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px; }
 .muted { color: var(--muted); }
