@@ -1,7 +1,7 @@
 /// <reference path="../pb_data/types.d.ts" />
 
 // There is no nightly job: sessions are created when an admin saves the
-// session definition or asks for it here.
+// periodic sessions or opens the Termine list (which calls this route).
 routerAdd("POST", "/api/velo/generate-sessions", (e) => {
   const lib = require(`${__hooks}/lib.js`);
   if (!e.auth || (!e.auth.isSuperuser() && !e.auth.getBool("is_admin"))) {

@@ -11,7 +11,6 @@
 	let { rules, onchange } = $props();
 
 	let error = $state('');
-	let message = $state('');
 	let newRule = $state({ weekday: 1, start: '17:00', end: '20:00', valid_from: '', valid_to: '' });
 
 	const weekdays = [1, 2, 3, 4, 5, 6, 7];
@@ -28,15 +27,13 @@
 	}
 
 	/**
-	 * Run an action, then let the page reload. A string the action returns is shown.
+	 * Run an action, then let the page reload.
 	 * @param {() => Promise<unknown>} action
 	 */
 	async function run(action) {
 		error = '';
-		message = '';
 		try {
-			const result = await action();
-			message = typeof result === 'string' ? result : '';
+			await action();
 			onchange();
 		} catch (err) {
 			fail(err);
@@ -63,12 +60,6 @@
 		);
 	}
 
-	function generate() {
-		run(async () => {
-			const res = await pb.send('/api/velo/generate-sessions', { method: 'POST' });
-			return t('hours.generated', { n: res.created });
-		});
-	}
 </script>
 
 <details class="card">
@@ -100,8 +91,6 @@
 			<button>{t('hours.addRule')}</button>
 		</form>
 	</div>
-	<p><button class="primary" onclick={generate}>{t('hours.generate')}</button></p>
-	{#if message}<p class="ok">{message}</p>{/if}
 </details>
 
 <style>

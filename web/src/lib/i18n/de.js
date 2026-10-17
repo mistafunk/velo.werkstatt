@@ -12,8 +12,6 @@ export default {
 	'hours.validTo': 'Gültig bis',
 	'hours.addRule': 'Regel hinzufügen',
 	'hours.delete': 'Löschen',
-	'hours.generate': 'Termine jetzt erstellen',
-	'hours.generated': '{n} Termine erstellt',
 	'hours.date': 'Datum',
 	'weekday.1': 'Montag',
 	'weekday.2': 'Dienstag',

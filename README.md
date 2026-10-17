@@ -27,7 +27,7 @@ Rules the app enforces:
 - Answers are Yes or No only (no Maybe, it makes planning too uncertain). A session with people but no key holder is red. See `web/src/lib/staffing.js`.
 - Volunteers can only change their own answers, name, phone, language and key flag.
 - Only admins (`is_admin`) can add people, make admins, deactivate people and add, move or remove sessions. Everybody sets their own "has key" flag (admins can set it for anyone).
-- Sessions for the next 12 weeks are created from the "Periodische Termine" whenever an admin saves them or taps "Termine jetzt erstellen". There is no nightly job.
+- Sessions for the next 12 weeks are created from the "Periodische Termine" whenever an admin saves them or opens the Termine list. There is no nightly job.
 - The Termine list shows the next 2 weeks, then past sessions with their number of visitors and material revenue (from the visits recorded in the app, or from the imported sheet totals for older sessions).
 
 ## Development

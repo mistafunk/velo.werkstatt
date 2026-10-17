@@ -13,8 +13,6 @@ export default {
 	'hours.validTo': 'Valid until',
 	'hours.addRule': 'Add rule',
 	'hours.delete': 'Delete',
-	'hours.generate': 'Create sessions now',
-	'hours.generated': '{n} sessions created',
 	'hours.date': 'Date',
 	'weekday.1': 'Monday',
 	'weekday.2': 'Tuesday',
