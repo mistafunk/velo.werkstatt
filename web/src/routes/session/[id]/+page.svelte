@@ -119,7 +119,7 @@
 		{#if session.status === 'closed'}
 			<p><button onclick={() => update({ status: 'open', closed_reason: '' })}>{t('admin.restore')}</button></p>
 		{:else}
-			<p><button class="danger" onclick={remove}>{t('admin.remove')}</button></p>
+			<p><button onclick={remove}>{t('admin.remove')}</button></p>
 		{/if}
 	{/if}
 {/if}
@@ -128,5 +128,4 @@
 	.badges { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 	.card { margin-bottom: 12px; }
 	ul { margin: 8px 0 0; padding-left: 20px; }
-	.danger { color: var(--red); border-color: var(--red); }
 </style>

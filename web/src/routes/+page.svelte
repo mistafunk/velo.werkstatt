@@ -113,7 +113,7 @@
 				<span class="right">
 					<StaffingBadge s={row.s} />
 					{#if isAdmin && !removed}
-						<button class="icon danger" aria-label={t('admin.remove')} title={t('admin.remove')} onclick={() => remove(row.session)}>✕</button>
+						<button class="icon" aria-label={t('admin.remove')} title={t('admin.remove')} onclick={() => remove(row.session)}>✕</button>
 					{/if}
 				</span>
 			</div>
@@ -157,7 +157,6 @@
 	.names { margin: 8px 0; min-height: 1.4em; }
 	.icon { min-height: 32px; padding: 2px 10px; }
 	.buttons { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 0; }
-	.danger { color: var(--red); border-color: var(--red); }
 	.removed { opacity: 0.6; }
 	.removed .date { text-decoration: line-through; }
 	.more { text-align: center; }

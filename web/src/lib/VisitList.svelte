@@ -74,7 +74,7 @@
 <section class="card">
 	<div class="head">
 		<strong>{t('visits.title')}</strong>
-		<button class="primary" onclick={add}>{t('visits.add')}</button>
+		<button onclick={add}>{t('visits.add')}</button>
 	</div>
 	<p class="muted">
 		{visits.length

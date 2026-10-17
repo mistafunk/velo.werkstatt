@@ -19,7 +19,7 @@
 
 <h1>{t('volunteers.title')}</h1>
 {#if auth.user?.is_admin}
-	<p><a href={resolve('/volunteers/[id]', { id: 'new' })}>+ {t('volunteers.new')}</a></p>
+	<p><a class="button" href={resolve('/volunteers/[id]', { id: 'new' })}>+ {t('volunteers.new')}</a></p>
 {/if}
 {#if error}<p class="error">{error}</p>{/if}
 <ul>

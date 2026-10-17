@@ -10,6 +10,8 @@
 	--green: #2e8b57;
 	--dark-green: #1b5e3a;
 	--grey: #8a8a8a;
+	/* Action buttons only: no badge, toggle or status uses this colour. */
+	--action: #2457a6;
 	color-scheme: light dark;
 }
 @media (prefers-color-scheme: dark) {
@@ -25,6 +27,7 @@
 		--green: #4cc07a;
 		--dark-green: #7bdc9f;
 		--grey: #9a9a9a;
+		--action: #3a72c4;
 	}
 }
 * { box-sizing: border-box; }
@@ -52,9 +55,15 @@ button, input, select, textarea {
 	font: inherit; color: inherit; background: var(--surface);
 	border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; min-height: 44px;
 }
-button { cursor: pointer; }
-button.primary { background: var(--accent); border-color: var(--accent); color: white; }
-button.link { border: none; background: none; padding: 0; min-height: 0; color: var(--muted); }
+/* Every button that does something is an action button with the action
+   colour. Selectors and toggles (segmented controls, Ja/Nein, Ich) and plain
+   links opt out below or in their own components. */
+button { cursor: pointer; background: var(--action); border-color: var(--action); color: white; font-weight: 600; }
+button:disabled { opacity: 0.6; cursor: default; }
+/* A link that starts an action looks like an action button. */
+a.button { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 12px; border-radius: 8px; background: var(--action); color: white; font-weight: 600; text-decoration: none; }
+.segmented button, button.toggle, button.me { background: var(--surface); border-color: var(--border); color: inherit; font-weight: 400; }
+button.link { border: none; background: none; padding: 0; min-height: 0; color: var(--muted); font-weight: 400; }
 label { display: block; margin: 12px 0 4px; font-weight: 600; }
 label.check { display: flex; gap: 8px; align-items: center; font-weight: 400; }
 label.check input { min-height: 0; width: 20px; height: 20px; }

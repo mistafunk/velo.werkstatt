@@ -88,6 +88,6 @@
 		<label class="check"><input type="checkbox" bind:checked={form.active} />{t('volunteer.active')}</label>
 	{/if}
 
-	{#if canEdit}<p><button class="primary">{t('volunteer.save')}</button></p>{/if}
+	{#if canEdit}<p><button>{t('volunteer.save')}</button></p>{/if}
 	{#if message}<p class="ok">{message}</p>{/if}
 </form>

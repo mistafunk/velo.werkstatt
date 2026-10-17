@@ -72,7 +72,7 @@
 	{#if rule}<p class="muted">{t('admin.fromDefinition', { start: rule.start, end: rule.end })}</p>{/if}
 	{#if error}<p class="error">{error}</p>{/if}
 	{#if message}<p class="ok">{message}</p>{/if}
-	<p class="buttons"><button class="primary">{t('admin.addButton')}</button></p>
+	<p class="buttons"><button>{t('admin.addButton')}</button></p>
 </form>
 
 <style>

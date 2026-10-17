@@ -47,7 +47,7 @@
 		<form onsubmit={requestCode}>
 			<label for="email">{t('login.email')}</label>
 			<input id="email" type="email" autocomplete="email" required bind:value={email} />
-			<p><button class="primary" disabled={busy}>{t('login.sendCode')}</button></p>
+			<p><button disabled={busy}>{t('login.sendCode')}</button></p>
 		</form>
 	{:else}
 		<form onsubmit={login}>
@@ -56,7 +56,7 @@
 			<label for="code">{t('login.code')}</label>
 			<input id="code" inputmode="numeric" autocomplete="one-time-code" required bind:value={code} />
 			<p>
-				<button class="primary" disabled={busy}>{t('login.submit')}</button>
+				<button disabled={busy}>{t('login.submit')}</button>
 				<button type="button" class="link" onclick={() => { otpId = ''; code = ''; }}>{t('login.otherEmail')}</button>
 			</p>
 		</form>
