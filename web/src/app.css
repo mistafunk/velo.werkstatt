@@ -38,6 +38,10 @@ body {
 header, nav, main { max-width: 960px; margin: 0 auto; padding: 0 16px; }
 header { display: flex; justify-content: space-between; align-items: center; padding-top: 12px; }
 .brand { font-weight: 700; color: var(--text); text-decoration: none; }
+.icons { display: flex; gap: 4px; }
+.hdr-icon { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; padding: 0; border: none; border-radius: 22px; background: none; color: var(--muted); }
+.hdr-icon.current { color: var(--accent); }
+.hdr-icon svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 nav { display: flex; gap: 16px; flex-wrap: wrap; padding-top: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
 nav a { color: var(--muted); text-decoration: none; }
 nav a.current { color: var(--text); font-weight: 600; }
