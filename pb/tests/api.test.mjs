@@ -84,17 +84,19 @@ test("volunteers manage only their own answers", async () => {
   assert.equal(hijack.status, 404);
 });
 
-test("only admins hand out keys and close sessions", async () => {
+test("volunteers set their own key flag, only admins remove sessions", async () => {
   const carla = await createVolunteer("carla");
   const boss = await createVolunteer("boss", { is_admin: true });
 
   const selfName = await api("PATCH", `/api/collections/users/records/${carla.id}`, carla.token, { name: "Carla B.", lang: "en" });
   assert.equal(selfName.status, 200);
   const selfKey = await api("PATCH", `/api/collections/users/records/${carla.id}`, carla.token, { has_key: true });
-  assert.equal(selfKey.status, 403);
-  const adminKey = await api("PATCH", `/api/collections/users/records/${carla.id}`, boss.token, { has_key: true });
-  assert.equal(adminKey.status, 200);
-  assert.equal(adminKey.body.has_key, true);
+  assert.equal(selfKey.status, 200);
+  assert.equal(selfKey.body.has_key, true);
+  const otherKey = await api("PATCH", `/api/collections/users/records/${boss.id}`, carla.token, { has_key: true });
+  assert.equal(otherKey.status, 404, "only their own key flag");
+  const selfAdmin = await api("PATCH", `/api/collections/users/records/${carla.id}`, carla.token, { is_admin: true });
+  assert.equal(selfAdmin.status, 403);
 
   const ev = (await api("GET", "/api/collections/sessions/records?sort=date&perPage=1", carla.token)).body.items[0];
   const notes = await api("PATCH", `/api/collections/sessions/records/${ev.id}`, carla.token, { notes: "Pumpe defekt" });

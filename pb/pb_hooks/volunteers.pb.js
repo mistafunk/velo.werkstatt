@@ -1,10 +1,11 @@
 /// <reference path="../pb_data/types.d.ts" />
 
-// Only admins may hand out keys, admin rights or (de)activate volunteers.
+// Only admins may hand out admin rights or (de)activate volunteers.
+// Everybody may say themselves whether they have a key.
 onRecordUpdateRequest((e) => {
   if (!e.hasSuperuserAuth() && !e.auth.getBool("is_admin")) {
     const original = e.record.original();
-    for (const field of ["has_key", "is_admin", "active", "email"]) {
+    for (const field of ["is_admin", "active", "email"]) {
       if (e.record.getString(field) !== original.getString(field)) {
         throw new ForbiddenError("Only admins can change " + field + ".");
       }

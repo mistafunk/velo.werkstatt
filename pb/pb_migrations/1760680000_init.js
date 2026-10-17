@@ -21,8 +21,8 @@ migrate((app) => {
   users.listRule = authed;
   users.viewRule = authed;
   users.createRule = admin;
-  // Everybody may edit their own name, phone and language. Only admins may
-  // change key, admin and active flags (checked in pb_hooks/volunteers.pb.js).
+  // Everybody may edit their own name, phone, language and key flag. Only
+  // admins may change the admin and active flags (checked in pb_hooks/volunteers.pb.js).
   users.updateRule = "id = @request.auth.id || " + admin;
   users.deleteRule = admin;
   app.save(users);

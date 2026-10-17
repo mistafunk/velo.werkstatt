@@ -25,8 +25,8 @@ log (entry fee, material, cash or TWINT) and later the inventory.
 Rules the app enforces:
 
 - Answers are Yes or No only (no Maybe, it makes planning too uncertain). A session with people but no key holder is red. See `web/src/lib/staffing.js`.
-- Volunteers can only change their own answers, name, phone and language.
-- Only admins (`is_admin`) can add people, hand out keys, make admins, deactivate people and add, move or remove sessions.
+- Volunteers can only change their own answers, name, phone, language and key flag.
+- Only admins (`is_admin`) can add people, make admins, deactivate people and add, move or remove sessions. Everybody sets their own "has key" flag (admins can set it for anyone).
 - Sessions are created automatically every night for the next 12 weeks from the opening hours.
 
 ## Development

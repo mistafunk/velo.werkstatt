@@ -39,8 +39,8 @@
 		error = '';
 		message = '';
 		/** @type {Record<string, unknown>} */
-		const data = { name: form.name, phone: form.phone, lang: form.lang };
-		if (isAdmin) Object.assign(data, { email: form.email, has_key: form.has_key, is_admin: form.is_admin, active: form.active });
+		const data = { name: form.name, phone: form.phone, lang: form.lang, has_key: form.has_key };
+		if (isAdmin) Object.assign(data, { email: form.email, is_admin: form.is_admin, active: form.active });
 		try {
 			if (isNew) {
 				const created = await pb.collection('users').create({ ...data, emailVisibility: true });
@@ -82,7 +82,7 @@
 		<option value="en">English</option>
 	</select>
 
-	<label class="check"><input type="checkbox" bind:checked={form.has_key} disabled={!isAdmin} />{t('volunteer.hasKey')}</label>
+	<label class="check"><input type="checkbox" bind:checked={form.has_key} disabled={!canEdit} />{t('volunteer.hasKey')}</label>
 	<label class="check"><input type="checkbox" bind:checked={form.is_admin} disabled={!isAdmin} />{t('volunteer.isAdmin')}</label>
 	<label class="check"><input type="checkbox" bind:checked={form.active} disabled={!isAdmin} />{t('volunteer.active')}</label>
 	{#if !isAdmin}<p class="muted">{t('volunteer.adminOnly')}</p>{/if}
