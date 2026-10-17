@@ -1,0 +1,77 @@
+:root {
+	--bg: #f7f6f2;
+	--surface: #ffffff;
+	--text: #1d1d1b;
+	--muted: #6b6a66;
+	--border: #dddbd3;
+	--accent: #1f6f5c;
+	--red: #c0392b;
+	--amber: #c77c02;
+	--green: #2e8b57;
+	--dark-green: #1b5e3a;
+	--grey: #8a8a8a;
+	color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark) {
+	:root {
+		--bg: #161615;
+		--surface: #22221f;
+		--text: #eceae4;
+		--muted: #a3a19a;
+		--border: #3a3935;
+		--accent: #5cc4a6;
+		--red: #ef6b5b;
+		--amber: #f0a830;
+		--green: #4cc07a;
+		--dark-green: #7bdc9f;
+		--grey: #9a9a9a;
+	}
+}
+* { box-sizing: border-box; }
+body {
+	margin: 0;
+	font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+	background: var(--bg);
+	color: var(--text);
+	line-height: 1.4;
+}
+header, nav, main { max-width: 960px; margin: 0 auto; padding: 0 16px; }
+header { display: flex; justify-content: space-between; align-items: center; padding-top: 12px; }
+.brand { font-weight: 700; color: var(--text); text-decoration: none; }
+.lang button { padding: 4px 8px; min-height: 0; }
+.lang button.active { background: var(--accent); color: white; border-color: var(--accent); }
+nav { display: flex; gap: 16px; flex-wrap: wrap; padding-top: 8px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+nav a { color: var(--muted); text-decoration: none; }
+nav a.current { color: var(--text); font-weight: 600; }
+main { padding-top: 16px; padding-bottom: 48px; }
+a { color: var(--accent); }
+h1 { font-size: 1.4rem; margin: 0 0 12px; }
+button, input, select, textarea {
+	font: inherit; color: inherit; background: var(--surface);
+	border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; min-height: 44px;
+}
+button { cursor: pointer; }
+button.primary { background: var(--accent); border-color: var(--accent); color: white; }
+button.link { border: none; background: none; padding: 0; min-height: 0; color: var(--muted); }
+label { display: block; margin: 12px 0 4px; font-weight: 600; }
+label.check { display: flex; gap: 8px; align-items: center; font-weight: 400; }
+label.check input { min-height: 0; width: 20px; height: 20px; }
+input:not([type='checkbox']), select, textarea { width: 100%; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px; }
+.muted { color: var(--muted); }
+.error { color: var(--red); }
+.ok { color: var(--green); }
+.badge { display: inline-block; font-size: 0.8rem; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--border); }
+.level { font-weight: 600; font-size: 0.85rem; padding: 2px 10px; border-radius: 999px; color: white; white-space: nowrap; }
+.level-closed { background: var(--grey); }
+.level-nokey, .level-empty { background: var(--red); }
+.level-one { background: var(--amber); }
+.level-two { background: var(--green); }
+.level-full { background: var(--dark-green); }
+@media (prefers-color-scheme: dark) { .level { color: #111; } }
+.segmented { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.segmented button { border: none; border-radius: 0; border-right: 1px solid var(--border); }
+.segmented button:last-child { border-right: none; }
+.segmented button.sel-yes { background: var(--green); color: white; }
+.segmented button.sel-maybe { background: var(--amber); color: white; }
+.segmented button.sel-no { background: var(--grey); color: white; }
