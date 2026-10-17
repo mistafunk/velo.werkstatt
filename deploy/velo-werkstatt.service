@@ -1,0 +1,15 @@
+# /etc/systemd/system/velo-werkstatt.service
+[Unit]
+Description=velo.werkstatt (PocketBase)
+After=network.target
+
+[Service]
+Type=simple
+User=velo
+WorkingDirectory=/opt/velo-werkstatt
+ExecStart=/opt/velo-werkstatt/pocketbase serve --http 127.0.0.1:8090
+Restart=on-failure
+LimitNOFILE=4096
+
+[Install]
+WantedBy=multi-user.target

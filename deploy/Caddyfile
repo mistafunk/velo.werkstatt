@@ -1,0 +1,6 @@
+# /etc/caddy/Caddyfile: HTTPS in front of PocketBase.
+# Replace the domain with the real one; Caddy fetches the certificate itself.
+werkstatt.example.ch {
+	encode gzip
+	reverse_proxy 127.0.0.1:8090
+}

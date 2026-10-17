@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Download PocketBase
+        working-directory: pb
+        run: |
+          v=$(cat POCKETBASE_VERSION)
+          curl -sSL -o pb.zip "https://github.com/pocketbase/pocketbase/releases/download/v${v}/pocketbase_${v}_linux_amd64.zip"
+          unzip -q pb.zip pocketbase && rm pb.zip
+
+      - name: API rules and hooks
+        working-directory: pb
+        run: node --test tests/*.test.mjs
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Spreadsheet importer
+        run: |
+          pip install openpyxl
+          python -m unittest discover tools
+
+      - name: Web app
+        working-directory: web
+        run: |
+          npm ci
+          npm run check
+          npm test
+          npm run build
