@@ -82,6 +82,7 @@ export default {
 	'volunteer.saved': 'Saved',
 	'volunteer.created': 'Person created',
 	'volunteer.adminOnly': 'Only admins can change this.',
+	'me.badge': 'Myself',
 	'me.label': 'My attendance',
 	'me.yes': 'Yes',
 	'me.no': 'No',

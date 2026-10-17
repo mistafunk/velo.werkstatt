@@ -5,7 +5,7 @@
 	import { t, formatDate } from '#lib/i18n/index.svelte.js';
 	import { staffing } from '#lib/staffing.js';
 	import { saveAnswer } from '#lib/schedule.js';
-	import MyAnswer from '#lib/MyAnswer.svelte';
+	import MeBadge from '#lib/MeBadge.svelte';
 	import VisitList from '#lib/VisitList.svelte';
 	import StaffingBadge from '#lib/StaffingBadge.svelte';
 
@@ -80,14 +80,15 @@
 	<h1>
 		{t('session.title', { date: formatDate(session.date, { weekday: 'long', day: 'numeric', month: 'long' }) })}
 	</h1>
-	<p>{session.start}–{session.end} <StaffingBadge {s} /></p>
+	<p class="badges">
+		{session.start}–{session.end}
+		<StaffingBadge {s} />
+		{#if session.status !== 'closed'}<MeBadge value={myAnswer} onchange={answer} />{/if}
+	</p>
 
 	{#if session.status === 'closed'}
 		<p>{t('session.closedBecause', { reason: session.closed_reason })}</p>
 	{:else}
-		<div class="card">
-			<MyAnswer value={myAnswer} onchange={answer} />
-		</div>
 		<VisitList sessionId={session.id} />
 	{/if}
 
@@ -137,6 +138,7 @@
 {/if}
 
 <style>
+	.badges { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 	.grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); margin: 12px 0; }
 	.card { margin-bottom: 12px; }
 	ul { margin: 8px 0 0; padding-left: 20px; }
