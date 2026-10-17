@@ -86,7 +86,6 @@
 		<p>{t('session.closedBecause', { reason: session.closed_reason })}</p>
 	{:else}
 		<div class="card">
-			<strong>{t('schedule.myAnswer')}</strong>
 			<MyAnswer value={myAnswer} onchange={answer} />
 		</div>
 		<VisitList sessionId={session.id} />

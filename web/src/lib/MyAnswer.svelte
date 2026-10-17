@@ -12,7 +12,7 @@
 </script>
 
 <div class="me me-{state}">
-	<span class="status"><span class="icon" aria-hidden="true">{state === 'yes' ? '✓' : state === 'no' ? '✕' : '?'}</span>{t(`me.${state}`)}</span>
+	<span class="status">{t('me.label')}: <span class="icon" aria-hidden="true">{state === 'yes' ? '✓' : state === 'no' ? '✕' : '?'}</span>{t(`me.${state}`)}</span>
 	<AnswerButtons {value} {onchange} />
 </div>
 
