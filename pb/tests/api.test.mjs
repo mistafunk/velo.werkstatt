@@ -180,4 +180,12 @@ test("volunteers record visits, the recorder is set by the server", async () => 
   const negative = await api("POST", "/api/collections/visits/records", vera.token, { session: ev.body.id, entry_fee: -5 });
   assert.equal(negative.status, 400);
   assert.equal((await api("GET", "/api/collections/visits/records", null)).body.totalItems, 0, "guests see no visits");
+
+  // Deleting a volunteer keeps the visits they recorded.
+  const boss = await createVolunteer("boss2", { is_admin: true });
+  assert.equal((await api("DELETE", `/api/collections/users/records/${other.id}`, vera.token)).status, 404, "only admins delete people");
+  assert.equal((await api("DELETE", `/api/collections/users/records/${other.id}`, boss.token)).status, 204);
+  const kept = await api("GET", `/api/collections/visits/records/${second.body.id}`, vera.token);
+  assert.equal(kept.status, 200);
+  assert.equal(kept.body.recorded_by, "");
 });

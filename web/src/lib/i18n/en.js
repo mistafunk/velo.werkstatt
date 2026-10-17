@@ -47,6 +47,8 @@ export default {
 	'volunteers.inactive': 'inactive',
 	'volunteers.key': 'Key',
 	'volunteers.admin': 'Admin',
+	'volunteers.delete': 'Delete person',
+	'volunteers.confirmDelete': 'Delete {name}? All their answers are deleted too. For someone who has just stopped helping, setting them inactive keeps the history.',
 	'volunteer.name': 'Name',
 	'volunteer.email': 'Email',
 	'volunteer.phone': 'Phone',

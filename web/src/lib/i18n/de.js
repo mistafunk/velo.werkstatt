@@ -46,6 +46,8 @@ export default {
 	'volunteers.inactive': 'inaktiv',
 	'volunteers.key': 'Schlüssel',
 	'volunteers.admin': 'Admin',
+	'volunteers.delete': 'Person löschen',
+	'volunteers.confirmDelete': '{name} löschen? Auch alle Antworten dieser Person werden gelöscht. Wer nur nicht mehr mitmacht, kann stattdessen auf inaktiv gesetzt werden.',
 	'volunteer.name': 'Name',
 	'volunteer.email': 'E-Mail',
 	'volunteer.phone': 'Telefon',
