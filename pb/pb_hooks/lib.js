@@ -1,7 +1,8 @@
 // Shared helpers for the pb_hooks. Hooks run in isolated VMs, so each
 // handler loads this file with require(`${__hooks}/lib.js`).
 
-const WEEKS_AHEAD = 12;
+// No nightly job, so saving the periodic sessions fills a whole year.
+const WEEKS_AHEAD = 52;
 
 function isoDate(d) {
   return d.toISOString().slice(0, 10);

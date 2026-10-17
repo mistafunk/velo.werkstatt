@@ -23,7 +23,6 @@
 	let error = $state('');
 	let weeks = $state(2);
 	let adding = $state(false);
-	let generated = false;
 
 	const isAdmin = $derived(!!auth.user?.is_admin);
 	const byId = $derived(new Map(volunteers.map((v) => [v.id, v])));
@@ -47,12 +46,6 @@
 
 	async function load() {
 		try {
-			// There is no nightly job: an admin opening the list fills in the
-			// missing sessions of the next weeks from the periodic sessions.
-			if (isAdmin && !generated) {
-				generated = true;
-				await pb.send('/api/velo/generate-sessions', { method: 'POST' });
-			}
 			({ sessions, answers, volunteers } = await loadSchedule(weeks));
 			if (isAdmin) rules = /** @type {any} */ (await pb.collection('opening_rules').getFullList({ sort: 'weekday,start' }));
 		} catch (err) {

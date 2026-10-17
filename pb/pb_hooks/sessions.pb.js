@@ -1,7 +1,8 @@
 /// <reference path="../pb_data/types.d.ts" />
 
-// There is no nightly job: sessions are created when an admin saves the
-// periodic sessions or opens the Termine list (which calls this route).
+// There is no nightly job: sessions of the next year are created when an
+// admin saves the periodic sessions. Admins (and the tests) can also ask for
+// it here.
 routerAdd("POST", "/api/velo/generate-sessions", (e) => {
   const lib = require(`${__hooks}/lib.js`);
   if (!e.auth || (!e.auth.isSuperuser() && !e.auth.getBool("is_admin"))) {

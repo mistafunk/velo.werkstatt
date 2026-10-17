@@ -59,7 +59,7 @@ test("default opening hours are seeded and sessions get generated", async () => 
   assert.deepEqual(rules.body.items.map((r) => [r.weekday, r.start, r.end]), [[1, "17:00", "20:00"], [4, "19:00", "21:00"]]);
   // The seeded rules already generated their sessions.
   const sessions = await api("GET", "/api/collections/sessions/records?perPage=1", superToken);
-  assert.equal(sessions.body.totalItems, 24);
+  assert.equal(sessions.body.totalItems, 104);
   const again = await api("POST", "/api/velo/generate-sessions", superToken, {});
   assert.equal(again.body.created, 0, "existing sessions are not duplicated");
 });
@@ -133,7 +133,7 @@ test("only admins edit opening hours and add or delete sessions", async () => {
   const changed = await api("PATCH", `/api/collections/opening_rules/records/${created.body.id}`, erin.token, { start: "09:00" });
   assert.equal(changed.status, 404);
 
-  const extra = { date: "2027-03-06", start: "10:00", end: "13:00", status: "open" };
+  const extra = { date: "2028-03-04", start: "10:00", end: "13:00", status: "open" };
   assert.equal((await api("POST", "/api/collections/sessions/records", erin.token, extra)).status, 400);
   const ev = await api("POST", "/api/collections/sessions/records", admin.token, extra);
   assert.equal(ev.status, 200);
@@ -161,7 +161,7 @@ test("changing the session definition retimes the upcoming sessions", async () =
   const mondayFilter = encodeURIComponent("start = '17:00' && end = '20:00' && date < '2030-01-01'");
   const rule = (await api("GET", `/api/collections/opening_rules/records?filter=${encodeURIComponent("weekday = 1")}`, superToken)).body.items[0];
   const mondays = (await api("GET", `/api/collections/sessions/records?filter=${mondayFilter}&perPage=100`, superToken)).body.items;
-  assert.equal(mondays.length, 12);
+  assert.equal(mondays.length, 52);
   const changed = await api("PATCH", `/api/collections/opening_rules/records/${rule.id}`, superToken, { start: "18:00" });
   assert.equal(changed.status, 200);
   for (const m of mondays) {
