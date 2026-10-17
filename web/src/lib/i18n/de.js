@@ -33,7 +33,6 @@ export default {
 	'login.failed': 'Das hat nicht geklappt. Ist der Code richtig und noch gültig?',
 	'login.unknown': 'Falls diese Adresse bei uns registriert ist, kommt gleich ein Code.',
 	'schedule.title': 'Termine',
-	'schedule.needsPeople': 'Nur Termine, die Leute brauchen',
 	'schedule.empty': 'Keine Termine in diesem Zeitraum.',
 	'schedule.nobody': 'Noch niemand eingetragen',
 	'staffing.closed': 'Entfernt',

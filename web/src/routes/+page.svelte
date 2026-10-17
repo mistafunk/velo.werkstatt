@@ -3,7 +3,7 @@
 	import { onMount } from 'svelte';
 	import { pb, auth, todayIso } from '#lib/pb.svelte.js';
 	import { t, formatDate } from '#lib/i18n/index.svelte.js';
-	import { staffing, NEEDS_PEOPLE } from '#lib/staffing.js';
+	import { staffing } from '#lib/staffing.js';
 	import { loadSchedule, saveAnswer } from '#lib/schedule.js';
 	import MyAnswer from '#lib/MyAnswer.svelte';
 	import StaffingBadge from '#lib/StaffingBadge.svelte';
@@ -21,7 +21,6 @@
 	let rules = $state([]);
 	let loading = $state(true);
 	let error = $state('');
-	let onlyNeeds = $state(false);
 	let weeks = $state(2);
 	let adding = $state(false);
 	/** The session being edited by an admin, with its unsaved times. */
@@ -42,7 +41,6 @@
 					myAnswer: mine.find((a) => a.volunteer === auth.user?.id)?.answer
 				};
 			})
-			.filter((r) => !onlyNeeds || NEEDS_PEOPLE.has(r.s.level))
 	);
 
 	/** @param {unknown} err */
@@ -115,7 +113,6 @@
 	{/if}
 {/if}
 <h2>{t('schedule.upcoming')}</h2>
-<label class="check"><input type="checkbox" bind:checked={onlyNeeds} />{t('schedule.needsPeople')}</label>
 {#if error}<p class="error">{error}</p>{/if}
 {#if loading}
 	<p class="muted">{t('common.loading')}</p>

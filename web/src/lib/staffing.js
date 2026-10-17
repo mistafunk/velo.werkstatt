@@ -26,6 +26,3 @@ export function staffing(session, answers, volunteers) {
 	else level = 'full';
 	return { level, yes, hasKey };
 }
-
-/** Levels at which a session still needs people. */
-export const NEEDS_PEOPLE = new Set(['empty', 'nokey', 'one']);

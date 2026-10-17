@@ -34,7 +34,6 @@ export default {
 	'login.failed': 'That did not work. Is the code correct and still valid?',
 	'login.unknown': 'If this address is registered, a code is on its way.',
 	'schedule.title': 'Sessions',
-	'schedule.needsPeople': 'Only sessions that need people',
 	'schedule.empty': 'No sessions in this period.',
 	'schedule.nobody': 'Nobody signed up yet',
 	'staffing.closed': 'Removed',
