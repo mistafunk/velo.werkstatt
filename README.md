@@ -95,10 +95,10 @@ Each card in "Nächste 2 Wochen" has a ✕ button to remove the session
 only marks the session as removed, so creating sessions again does not bring it
 back; admins still see it greyed out and can restore it. Below the next
 two weeks, a section "Termine verwalten" adds single extra sessions
-("+ Termin") and holds the "Periodische Termine" (weekday, time, valid
-from/until) in a folded box. Times live only there: changing them retimes
-all upcoming sessions on that weekday right away, and a single session
-cannot be retimed. Only a single session on a day they do not cover (e.g. a
+("+ Termin") and holds the "Periodische Termine" (weekday and time) in a
+folded box. They always apply from now on: changing them retimes all
+future sessions on that weekday right away, except a session that has
+already started (Zurich time). A single session cannot be retimed. Only a single session on a day they do not cover (e.g. a
 Saturday) gets its own times when it is added.
 
 ## Hosting

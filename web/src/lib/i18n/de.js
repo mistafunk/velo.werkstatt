@@ -8,8 +8,6 @@ export default {
 	'hours.weekday': 'Wochentag',
 	'hours.start': 'Von',
 	'hours.end': 'Bis',
-	'hours.validFrom': 'Gültig ab',
-	'hours.validTo': 'Gültig bis',
 	'hours.addRule': 'Regel hinzufügen',
 	'hours.delete': 'Löschen',
 	'hours.date': 'Datum',

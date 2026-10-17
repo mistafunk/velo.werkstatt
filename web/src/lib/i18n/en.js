@@ -9,8 +9,6 @@ export default {
 	'hours.weekday': 'Weekday',
 	'hours.start': 'From',
 	'hours.end': 'To',
-	'hours.validFrom': 'Valid from',
-	'hours.validTo': 'Valid until',
 	'hours.addRule': 'Add rule',
 	'hours.delete': 'Delete',
 	'hours.date': 'Date',
