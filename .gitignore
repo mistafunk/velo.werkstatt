@@ -1,0 +1,8 @@
+node_modules/
+pb/pocketbase
+pb/pb_data/
+pb/pb_public/
+web/build/
+web/.svelte-kit/
+.env
+*.zip
